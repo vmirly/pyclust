@@ -63,7 +63,7 @@ def _kmeans_run(X, n_clusters, max_iter, tol=0.01):
     return(centers, membs, sse, n_iter)
 
 
-def _kmeans(X, n_clusters, max_iter, n_trial):
+def _kmeans(X, n_clusters, max_iter, n_trials):
     """ Run multiple trials of k-means clustering,
 	and outputt he best centers, and cluster labels
     """
@@ -71,7 +71,7 @@ def _kmeans(X, n_clusters, max_iter, n_trial):
 
     centers_best = np.empty(shape=(n_clusters,n_features), dtype=float)
     labels_best  = np.empty(shape=n_samples, dtype=int)
-    for i in range(n_trial):
+    for i in range(n_trials):
         centers, labels, sse, n_iter  = _kmeans_run(X, n_clusters, max_iter)
 	if i==0:
             sse_best = sse
@@ -96,7 +96,7 @@ class KMeans(object):
 	-------
 	   n_cluster
 
-	   n_trial : int, default 10
+	   n_trials : int, default 10
 
 	   max_iter : int, default 100
 
@@ -112,10 +112,10 @@ class KMeans(object):
 	   fit_predict()
     """
 
-    def __init__(self, n_clusters=2, n_trial=10, max_iter=100):
+    def __init__(self, n_clusters=2, n_trials=10, max_iter=100):
 	
 	self.n_clusters = n_clusters
-	self.n_trial = n_trial
+	self.n_trials = n_trials
 	self.max_iter = max_iter
 
     def fit(self, X, y=None):
@@ -123,6 +123,6 @@ class KMeans(object):
 	      X: dataset with feature vectors
 	"""
 	self.centers_, self.labels_, self.sse_, self.n_iter_ = \
-		_kmeans(X, self.n_clusters, self.max_iter, self.n_trial)
+		_kmeans(X, self.n_clusters, self.max_iter, self.n_trials)
 
 
