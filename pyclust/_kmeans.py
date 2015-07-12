@@ -34,11 +34,11 @@ def _update_centers(X, membs, n_clusters):
     centers = np.empty(shape=(n_clusters, X.shape[1]))
     sse = 0.0
     for clust_id in range(n_clusters):
-	memb_ids = np.where(membs == clust_id)[0]
-	centers[clust_id,:] = np.mean(X[memb_ids,:], axis=0)
+        memb_ids = np.where(membs == clust_id)[0]
+        centers[clust_id,:] = np.mean(X[memb_ids,:], axis=0)
 	
-	d2c = scipy.spatial.distance.cdist(X[memb_ids,:], centers[clust_id,:].reshape(1,X.shape[1]), metric='euclidean')
-	sse += np.sum(d2c)
+        d2c = scipy.spatial.distance.cdist(X[memb_ids,:], centers[clust_id,:].reshape(1,X.shape[1]), metric='euclidean')
+        sse += np.sum(d2c)
     return(centers, sse)
 
 
@@ -53,12 +53,12 @@ def _kmeans_run(X, n_clusters, max_iter, tol=0.01):
     sse_last = 9999.9
     n_iter = 0
     for it in range(1,max_iter):
-	membs = _assign_clusters(X, centers)
-	centers,sse = _update_centers(X, membs, n_clusters)
-	if np.abs(sse - sse_last) < tol:
-	    n_iter = it+1
-	    break
-	sse_last = sse
+        membs = _assign_clusters(X, centers)
+        centers,sse = _update_centers(X, membs, n_clusters)
+        if np.abs(sse - sse_last) < tol:
+            n_iter = it+1
+            break
+        sse_last = sse
 
     return(centers, membs, sse, n_iter)
 
@@ -73,17 +73,17 @@ def _kmeans(X, n_clusters, max_iter, n_trials):
     labels_best  = np.empty(shape=n_samples, dtype=int)
     for i in range(n_trials):
         centers, labels, sse, n_iter  = _kmeans_run(X, n_clusters, max_iter)
-	if i==0:
+        if i==0:
             sse_best = sse
             n_iter_best = n_iter
             centers_best = centers.copy()
             labels_best  = labels.copy()
-	if sse < sse_best:
-	    sse_best = sse
-	    n_iter_best = n_iter
-	    centers_best = centers.copy()
-	    labels_best  = labels.copy()
-	print("SSE: ", i, sse, sse_best)
+        if sse < sse_best:
+            sse_best = sse
+            n_iter_best = n_iter
+            centers_best = centers.copy()
+            labels_best  = labels.copy()
+        print("SSE: ", i, sse, sse_best)
 
     return(centers_best, labels_best, sse_best, n_iter_best)
 
@@ -114,15 +114,15 @@ class KMeans(object):
 
     def __init__(self, n_clusters=2, n_trials=10, max_iter=100):
 	
-	self.n_clusters = n_clusters
-	self.n_trials = n_trials
-	self.max_iter = max_iter
+        self.n_clusters = n_clusters
+        self.n_trials = n_trials
+        self.max_iter = max_iter
 
     def fit(self, X, y=None):
-	""" Apply KMeans Clustering
+        """ Apply KMeans Clustering
 	      X: dataset with feature vectors
-	"""
-	self.centers_, self.labels_, self.sse_, self.n_iter_ = \
-		_kmeans(X, self.n_clusters, self.max_iter, self.n_trials)
+        """
+        self.centers_, self.labels_, self.sse_, self.n_iter_ = \
+              _kmeans(X, self.n_clusters, self.max_iter, self.n_trials)
 
 
