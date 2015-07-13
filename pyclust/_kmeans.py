@@ -26,19 +26,23 @@ def _assign_clusters(X, centers):
 
     return(membs)
 
+def _cal_dist2center(X, center):
+    """ Calculate the SSE to the cluster center
+    """
+    dmemb2cen = scipy.spatial.distance.cdist(X, center.reshape(1,X.shape[1]), metric='euclidean')
+    return(np.sum(dmemb2cen))
 
 def _update_centers(X, membs, n_clusters):
     """ Update Cluster Centers:
 	   calculate the mean of feature vectors for each cluster
     """
-    centers = np.empty(shape=(n_clusters, X.shape[1]))
-    sse = 0.0
+    centers = np.empty(shape=(n_clusters, X.shape[1]), dtype=float)
+    sse = np.empty(shape=n_clusters, dtype=float)
     for clust_id in range(n_clusters):
         memb_ids = np.where(membs == clust_id)[0]
         centers[clust_id,:] = np.mean(X[memb_ids,:], axis=0)
 	
-        d2c = scipy.spatial.distance.cdist(X[memb_ids,:], centers[clust_id,:].reshape(1,X.shape[1]), metric='euclidean')
-        sse += np.sum(d2c)
+        sse[clust_id] = _cal_dist2center(X[memb_ids,:], centers[clust_id,:]) 
     return(centers, sse)
 
 
@@ -55,12 +59,13 @@ def _kmeans_run(X, n_clusters, max_iter, tol=0.01):
     for it in range(1,max_iter):
         membs = _assign_clusters(X, centers)
         centers,sse = _update_centers(X, membs, n_clusters)
-        if np.abs(sse - sse_last) < tol:
+        sse_sum = np.sum(sse)
+        if np.abs(sse_sum - sse_last) < tol:
             n_iter = it+1
             break
-        sse_last = sse
+        sse_last = sse_sum
 
-    return(centers, membs, sse, n_iter)
+    return(centers, membs, sse_sum, n_iter)
 
 
 def _kmeans(X, n_clusters, max_iter, n_trials):
@@ -126,3 +131,9 @@ class KMeans(object):
               _kmeans(X, self.n_clusters, self.max_iter, self.n_trials)
 
 
+    def fit_predict(self, X, y=None)
+        """ Apply KMeans Clustering, 
+            and return cluster labels
+        """
+        self.fit(X)
+        return(self.labels_)
