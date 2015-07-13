@@ -10,21 +10,29 @@ def _select_cluster_2_split(membs, sse_arr):
     if np.any(sse_arr > 0):
         clust_id = np.argmax(sse_arr)
         memb_ids = np.where(membs == clust_id)[0]
-        return(memb_ids)
+        return(clust_id,memb_ids)
     else:
-        return(np.range(membs.shape[0]))
+        return(0,np.arange(membs.shape[0]))
 
 
-def _bisect_kmeans(X, n_clusters, n_trials, max_iter, sse_arr):
+def _bisect_kmeans(X, n_clusters, n_trials, max_iter):
     """
     """
     membs = np.empty(shape=X.shape[0], dtype=int)
+    centers = np.empty(shape=(n_clusters,X.shape[1]), dtype=float)
+    sse_arr = -1.0*np.ones(shape=n_clusters, dtype=float)
+
     km = _kmeans.KMeans(n_clusters=2, n_trials=n_trials, max_iter=max_iter)
-    for i in range(n_clusters-1):
-        sel_memb_ids = _select_cluster_2_split(membs, sse_arr)
+    for i in range(1,n_clusters):
+        sel_clust_id,sel_memb_ids = _select_cluster_2_split(membs, sse_arr)
         X_sub = X[sel_memb_ids,:]
         km.fit(X_sub)
 
+        ## Updating the clusters & properties
+        sse_arr[[sel_clust_id,i]] = km.sse_arr_
+        membs[sel_memb_ids] = km.labels_
+
+    return(centers, membs, sse_arr)
 
 class BisectKMeans(object):
     """ 

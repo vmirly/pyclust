@@ -1,10 +1,8 @@
 from distutils.core import setup
 
 
-files = ["things/*"]
-
 setup(name = "pyclust",
-    version = "0.0.1",
+    version = "0.0.2",
     description = "Data Clustering Algorithms in Python",
     author = "Vahid Mirjalili",
     author_email = "vmirjalily@gmail.com",

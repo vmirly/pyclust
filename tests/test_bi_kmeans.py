@@ -9,7 +9,7 @@ d = np.vstack((d1,d2))
 print(d.shape)
 
 
-bkm = pyclust.BisectKMeans(n_clusters=2)
+bkm = pyclust.BisectKMeans(n_clusters=3)
 
 bkm.fit(d)
 
