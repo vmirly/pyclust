@@ -13,3 +13,5 @@ bkm = pyclust.BisectKMeans(n_clusters=3)
 
 bkm.fit(d)
 
+
+print(bkm.labels_)
