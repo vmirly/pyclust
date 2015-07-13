@@ -58,14 +58,14 @@ def _kmeans_run(X, n_clusters, max_iter, tol=0.01):
     n_iter = 0
     for it in range(1,max_iter):
         membs = _assign_clusters(X, centers)
-        centers,sse = _update_centers(X, membs, n_clusters)
-        sse_sum = np.sum(sse)
-        if np.abs(sse_sum - sse_last) < tol:
+        centers,sse_arr = _update_centers(X, membs, n_clusters)
+        sse_total = np.sum(sse_arr)
+        if np.abs(sse_total - sse_last) < tol:
             n_iter = it+1
             break
-        sse_last = sse_sum
+        sse_last = sse_total
 
-    return(centers, membs, sse_sum, n_iter)
+    return(centers, membs, sse_total, sse_arr, n_iter)
 
 
 def _kmeans(X, n_clusters, max_iter, n_trials):
@@ -77,20 +77,22 @@ def _kmeans(X, n_clusters, max_iter, n_trials):
     centers_best = np.empty(shape=(n_clusters,n_features), dtype=float)
     labels_best  = np.empty(shape=n_samples, dtype=int)
     for i in range(n_trials):
-        centers, labels, sse, n_iter  = _kmeans_run(X, n_clusters, max_iter)
+        centers, labels, sse_tot, sse_arr, n_iter  = _kmeans_run(X, n_clusters, max_iter)
         if i==0:
-            sse_best = sse
+            sse_tot_best = sse_tot
+            sse_arr_best = sse_arr
             n_iter_best = n_iter
             centers_best = centers.copy()
             labels_best  = labels.copy()
         if sse < sse_best:
-            sse_best = sse
+            sse_tot_best = sse_tot
+            sse_arr_best = sse_arr
             n_iter_best = n_iter
             centers_best = centers.copy()
             labels_best  = labels.copy()
-        print("SSE: ", i, sse, sse_best)
+        print("SSE: ", i, sse_tot_best, sse_arr_best)
 
-    return(centers_best, labels_best, sse_best, n_iter_best)
+    return(centers_best, labels_best, sse_arr_best, n_iter_best)
 
 
 class KMeans(object):
@@ -127,7 +129,7 @@ class KMeans(object):
         """ Apply KMeans Clustering
 	      X: dataset with feature vectors
         """
-        self.centers_, self.labels_, self.sse_, self.n_iter_ = \
+        self.centers_, self.labels_, self.sse_arr_, self.n_iter_ = \
               _kmeans(X, self.n_clusters, self.max_iter, self.n_trials)
 
 

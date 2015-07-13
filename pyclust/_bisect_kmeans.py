@@ -21,9 +21,9 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, sse_arr):
     membs = np.empty(shape=X.shape[0], dtype=int)
     km = _kmeans.KMeans(n_clusters=2, n_trials=n_trials, max_iter=max_iter)
     for i in range(n_clusters-1):
-        sel_ids = _select_cluster_2_split(, sse_arr)
-        X_sub = X[sel_ids,:]
-        centers,  km.fit(X_sub)
+        sel_memb_ids = _select_cluster_2_split(membs, sse_arr)
+        X_sub = X[sel_memb_ids,:]
+        km.fit(X_sub)
 
 
 class BisectKMeans(object):
