@@ -16,7 +16,10 @@ bkm.fit(d)
 
 print(bkm.labels_)
 
-leaf_nodes = bkm.tree_.all_nodes()
+leaf_nodes = bkm.tree_.leaves()
 print(leaf_nodes)
 for node in leaf_nodes:
    print(node.data)
+
+
+bkm.tree_.show()
