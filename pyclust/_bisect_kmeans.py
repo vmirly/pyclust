@@ -28,16 +28,34 @@ def _select_cluster_2_split(membs, tree):
 
 def _cut_tree(tree, n_clusters, membs):
     """ Cut the tree to get desired number of clusters as n_clusters
+            2 <= n_desired <= n_clusters
     """
     assert(n_clusters >= 2)
-    node_set = set(tree.children(0)):
-    for i in n_clusters-1:
-        for n in node_set:
-            pass
+    assert(n_clusters <= len(tree.leaves()))
+
+    node_set = set(tree.children(0))
+    cut_set = set()
+    for i in range(2,n_clusters+1):
+        iter_nodes = node_set.copy()
+        for n in iter_nodes:
+            #print(i, n.data['ilev'], n.data['label'])
+            node_set.remove(n)
+            if n.data['ilev'] is None:
+                cut_set.add(n)
+            elif n.data['ilev'] == i:
+                nid = n.data['label']
+                node_set = cut_set.union(set(tree.children(nid)))
+                #print(nid, tree.children(nid), node_set)
+
+            if i==(n_clusters):
+                cut_set.add(n)
     
+    #cut_set = cut_set.union(node_set) 
+
+    return([node.data['label'] for node in cut_set])
 
 
-def _add_tree_node(tree, label, X=None, center=None, sse=None, parent=None):
+def _add_tree_node(tree, label, ilev, X=None, center=None, sse=None, parent=None):
     """
     """
     if (center is None):
@@ -49,12 +67,14 @@ def _add_tree_node(tree, label, X=None, center=None, sse=None, parent=None):
     datadict = {
         'center': center, 
         'label' : label, 
-        'sse'   : sse 
+        'sse'   : sse,
+        'ilev'  : None 
     }
-    if (parent is not None):
-        tree.create_node(label, label, parent=parent, data=datadict)
-    else:
+    if (parent is None):
         tree.create_node(label, label, data=datadict)
+    else:
+        tree.create_node(label, label, parent=parent, data=datadict)
+        tree.get_node(parent).data['ilev'] = ilev
 
     return(tree)
 
@@ -70,7 +90,7 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
 
     ## data structure to store cluster hierarchies
     tree = treelib.Tree()
-    tree = _add_tree_node(tree, 0, X) 
+    tree = _add_tree_node(tree, 0, ilev=0, X=X) 
 
     km = _kmeans.KMeans(n_clusters=2, n_trials=n_trials, max_iter=max_iter, tol=tol)
     for i in range(1,n_clusters):
@@ -78,12 +98,13 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         X_sub = X[sel_memb_ids,:]
         km.fit(X_sub)
 
+        print("Bisecting Step %d    :"%i, sel_clust_id, km.sse_arr_, km.centers_)
         ## Updating the clusters & properties
-        sse_arr[[sel_clust_id,i]] = km.sse_arr_
-        centers[[sel_clust_id,i]] = km.centers_
-        tree = _add_tree_node(tree, 2*i-1, center=km.centers_[0], \
+        #sse_arr[[sel_clust_id,i]] = km.sse_arr_
+        #centers[[sel_clust_id,i]] = km.centers_
+        tree = _add_tree_node(tree, 2*i-1, i, center=km.centers_[0], \
                              sse=km.sse_arr_[0], parent= sel_clust_id)
-        tree = _add_tree_node(tree, 2*i, center=km.centers_[1], \
+        tree = _add_tree_node(tree, 2*i,   i, center=km.centers_[1], \
                              sse=km.sse_arr_[1], parent= sel_clust_id)
 
         pred_labels = km.labels_
@@ -133,4 +154,9 @@ class BisectKMeans(object):
         """
         self.centers_, self.labels_, self.sse_arr_, self.tree_ = \
             _bisect_kmeans(X, self.n_clusters, self.n_trials, self.max_iter, self.tol)
-        
+
+
+    def cut(self, n_desired):
+        """
+        """
+        return(_cut_tree(self.tree_, n_desired, self.labels_))
