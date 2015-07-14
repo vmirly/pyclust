@@ -10,7 +10,6 @@ from . import _kmeans
 def _select_cluster_2_split(membs, tree):
     leaf_nodes = tree.leaves()
     num_leaves = len(leaf_nodes)
-    print("Selcting: leaves: ", leaf_nodes)
     if len(leaf_nodes)>1:
         sse_arr = np.empty(shape=num_leaves, dtype=float)
         labels  = np.empty(shape=num_leaves, dtype=int)
@@ -29,10 +28,8 @@ def _select_cluster_2_split(membs, tree):
 def add_tree_node(tree, label, X=None, center=None, sse=None, parent=None):
     """
     """
-    print("1) center: ", center)
     if (center is None):
         center = np.mean(X, axis=0)
-    print("2) center: ", center)
     if (sse is None):
         sse = _kmeans._cal_dist2center(X, center)
 
@@ -66,7 +63,6 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
     km = _kmeans.KMeans(n_clusters=2, n_trials=n_trials, max_iter=max_iter, tol=tol)
     for i in range(1,n_clusters):
         sel_clust_id,sel_memb_ids = _select_cluster_2_split(membs, tree)
-        print("Picking cluster to split: ", sel_clust_id, sel_memb_ids)
         X_sub = X[sel_memb_ids,:]
         km.fit(X_sub)
 
@@ -89,7 +85,6 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         #    pred_labels[np.where(pred_labels == 0)[0]] = sel_clust_id
 
         membs[sel_memb_ids] = pred_labels
-        print("Bisetcing step %d "%i, membs)
 
     return(centers, membs, sse_arr, tree)
 

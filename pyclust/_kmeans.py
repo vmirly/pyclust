@@ -90,7 +90,6 @@ def _kmeans(X, n_clusters, max_iter, n_trials, tol):
             n_iter_best = n_iter
             centers_best = centers.copy()
             labels_best  = labels.copy()
-        print("SSE:  trial ", i, sse_tot_best, sse_arr_best)
 
     return(centers_best, labels_best, sse_arr_best, n_iter_best)
 
