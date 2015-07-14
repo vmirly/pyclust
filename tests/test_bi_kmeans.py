@@ -27,6 +27,7 @@ def test_bisect3(d):
         print(node.data)
 
 
+    print(bkm.labels_)
     print(bkm.cut(2))
     print(bkm.cut(3))
     print(bkm.cut(4))

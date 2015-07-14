@@ -43,16 +43,22 @@ def _cut_tree(tree, n_clusters, membs):
             if n.data['ilev'] is None:
                 cut_set.add(n)
             elif n.data['ilev'] == i:
-                nid = n.data['label']
+                nid = n.identifier
                 node_set = cut_set.union(set(tree.children(nid)))
                 #print(nid, tree.children(nid), node_set)
 
             if i==(n_clusters):
                 cut_set.add(n)
-    
-    #cut_set = cut_set.union(node_set) 
+   
+    conv_membs = membs.copy()
+    for node in cut_set:
+        nid = node.identifier
+        sub_leaves = tree.leaves(nid)
+        for leaf in sub_leaves:
+            indx = np.where(conv_membs == leaf)[0]
+            conv_membs[indx] = nid
 
-    return([node.data['label'] for node in cut_set])
+    return(conv_membs)
 
 
 def _add_tree_node(tree, label, ilev, X=None, center=None, sse=None, parent=None):
