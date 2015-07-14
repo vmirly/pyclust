@@ -63,10 +63,10 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         ## Updating the clusters & properties
         sse_arr[[sel_clust_id,i]] = km.sse_arr_
         centers[[sel_clust_id,i]] = km.centers_
-        tree = add_tree_node(tree, 2*i-1,           \
-              	             center=km.centers_[0], \
-                             sse=km.sse_arr_[0], \
-                             parent= sel_clust_id)
+        tree = add_tree_node(tree, 2*i-1, center=km.centers_[0], \
+                             sse=km.sse_arr_[0], parent= sel_clust_id)
+        tree = add_tree_node(tree, 2*i, center=km.centers_[1], \
+                             sse=km.sse_arr_[1], parent= sel_clust_id)
 
         pred_labels = km.labels_
         print(sel_clust_id)
@@ -82,7 +82,7 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         membs[sel_memb_ids] = pred_labels
         print("Bisetcing step %d "%i, membs)
 
-    return(centers, membs, sse_arr)
+    return(centers, membs, sse_arr, tree)
 
 
 
@@ -115,6 +115,6 @@ class BisectKMeans(object):
     def fit(self, X, y=None):
         """
         """
-        self.centers_, self.labels_, self.sse_arr_ = \
+        self.centers_, self.labels_, self.sse_arr_, self.tree_ = \
             _bisect_kmeans(X, self.n_clusters, self.n_trials, self.max_iter, self.tol)
         
