@@ -27,10 +27,10 @@ def test_bisect3(d):
         print(node.data)
 
 
-    print(bkm.labels_)
-    print(bkm.cut(2))
-    print(bkm.cut(3))
-    print(bkm.cut(4))
+    print("Orig: ", np.unique(bkm.labels_))
+    print("Cut2: ", np.unique(bkm.cut(2)))
+    print("Cut3: ", np.unique(bkm.cut(3)))
+    print("Cut4: ", np.unique(bkm.cut(4)))
 
 
 test_bisect3(da)
