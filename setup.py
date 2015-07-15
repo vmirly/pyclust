@@ -10,6 +10,10 @@ setup(name = "pyclust",
 
     packages = ['pyclust'],
 
+    install_requires=['numpy>=1.9.2',
+	'scipy>=0.15.1',
+	'treelib>=1.3.1'],
+
     #package *needs* these files.
     package_data = {'pyclust':[]},
     classifiers = [

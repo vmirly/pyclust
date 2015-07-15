@@ -13,8 +13,8 @@ def _select_cluster_2_split(membs, tree):
     if len(leaf_nodes)>1:
         sse_arr = np.empty(shape=num_leaves, dtype=float)
         labels  = np.empty(shape=num_leaves, dtype=int)
-        i = 0
-        for node in leaf_nodes:
+
+        for i,node in enumerate(leaf_nodes):
             sse_arr[i] = node.data['sse']
             labels[i]  = node.data['label']
         id_max = np.argmax(sse_arr)
@@ -36,16 +36,13 @@ def _cut_tree(tree, n_clusters, membs):
     node_set = set(tree.children(0))
     cut_set = set()
     for i in range(2,n_clusters+1):
-        iter_nodes = node_set.copy()
-        for n in iter_nodes:
-            #print(i, n.data['ilev'], n.data['label'])
-            node_set.remove(n)
+        for j in range(len(node_set)):
+            n = node_set.pop()
             if n.data['ilev'] is None:
                 cut_set.add(n)
             elif n.data['ilev'] == i:
                 nid = n.identifier
                 node_set = cut_set.union(set(tree.children(nid)))
-                #print(nid, tree.children(nid), node_set)
 
             if i==(n_clusters):
                 cut_set.add(n)
