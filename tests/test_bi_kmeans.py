@@ -21,7 +21,7 @@ def test_bisect3(d):
         print(node.data)
 
 
-    bkm.tree_.show()
+    bkm.tree_.show(line_type='ascii')
 
     for node in bkm.tree_.all_nodes():
         print(node.data)
