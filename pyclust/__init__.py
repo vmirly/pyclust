@@ -7,4 +7,4 @@ from ._kmeans import KMeans
 from ._bisect_kmeans import BisectKMeans
 
 
-__version__ = '0.0.3'
+__version__ = '0.0.5'

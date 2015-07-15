@@ -30,34 +30,37 @@ def _cut_tree(tree, n_clusters, membs):
     """ Cut the tree to get desired number of clusters as n_clusters
             2 <= n_desired <= n_clusters
     """
+    ## starting from root,
+    ## a node is added to the cut_set or 
+    ## its children are added to node_set
     assert(n_clusters >= 2)
     assert(n_clusters <= len(tree.leaves()))
-    #import sys
-    cut_set = set()
+    import sys
     for i in range(n_clusters-1):
         if i==0:
-            node_set = set(tree.children(0))
-        #print(i, [(n.identifier,n.data['ilev']) for n in node_set], [n.identifier for n in cut_set])
-        for j in range(len(node_set)):
-            n = node_set.pop()
-            #sys.stderr.write("\t j=%d   %d "%(j,n.identifier))
+            search_set = set(tree.children(0))
+            node_set,cut_set = set(), set()
+        else:
+            search_set = node_set.union(cut_set)
+            node_set,cut_set = set(), set()
+
+        #print(i, [n.identifier for n in search_set])
+        if i+2 == n_clusters:
+            cut_set = search_set
+        else:
+            for j in range(len(search_set)):
+                n = search_set.pop()
+                #sys.stderr.write("\t j=%d   %d "%(j,n.identifier))
             
-            if n.data['ilev'] is None:
-                #sys.stderr.write(" None ")
-                cut_set.add(n)
-            else:
-                #sys.stderr.write(" %d "%n.data['ilev'] )
-                nid = n.identifier
-                if n.data['ilev']-2==i:
-                   node_set = node_set.union(set(tree.children(nid)))
+                if n.data['ilev'] is None or n.data['ilev']>i+2:
+                    #sys.stderr.write(" None ")
+                    cut_set.add(n)
                 else:
-                   node_set.add(n)
-                  
-
-            if i==n_clusters-2:
-                cut_set.add(n)
-
-            #print([(n.identifier,n.data['ilev']) for n in node_set], [n.identifier for n in cut_set])
+                    #sys.stderr.write(" %d "%n.data['ilev'] )
+                    nid = n.identifier
+                    if n.data['ilev']-2==i:
+                        node_set = node_set.union(set(tree.children(nid)))
+                #print([n.identifier for n in node_set], [n.identifier for n in cut_set])
    
     conv_membs = membs.copy()
     for node in cut_set:
