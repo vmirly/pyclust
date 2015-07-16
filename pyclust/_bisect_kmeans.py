@@ -35,7 +35,6 @@ def _cut_tree(tree, n_clusters, membs):
     ## its children are added to node_set
     assert(n_clusters >= 2)
     assert(n_clusters <= len(tree.leaves()))
-    import sys
     for i in range(n_clusters-1):
         if i==0:
             search_set = set(tree.children(0))
@@ -44,23 +43,18 @@ def _cut_tree(tree, n_clusters, membs):
             search_set = node_set.union(cut_set)
             node_set,cut_set = set(), set()
 
-        #print(i, [n.identifier for n in search_set])
         if i+2 == n_clusters:
             cut_set = search_set
         else:
             for j in range(len(search_set)):
                 n = search_set.pop()
-                #sys.stderr.write("\t j=%d   %d "%(j,n.identifier))
             
                 if n.data['ilev'] is None or n.data['ilev']>i+2:
-                    #sys.stderr.write(" None ")
                     cut_set.add(n)
                 else:
-                    #sys.stderr.write(" %d "%n.data['ilev'] )
                     nid = n.identifier
                     if n.data['ilev']-2==i:
                         node_set = node_set.union(set(tree.children(nid)))
-                #print([n.identifier for n in node_set], [n.identifier for n in cut_set])
    
     conv_membs = membs.copy()
     for node in cut_set:
@@ -116,7 +110,7 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         X_sub = X[sel_memb_ids,:]
         km.fit(X_sub)
 
-        print("Bisecting Step %d    :"%i, sel_clust_id, km.sse_arr_, km.centers_)
+        #print("Bisecting Step %d    :"%i, sel_clust_id, km.sse_arr_, km.centers_)
         ## Updating the clusters & properties
         #sse_arr[[sel_clust_id,i]] = km.sse_arr_
         #centers[[sel_clust_id,i]] = km.centers_
@@ -173,6 +167,12 @@ class BisectKMeans(object):
         self.centers_, self.labels_, self.sse_arr_, self.tree_ = \
             _bisect_kmeans(X, self.n_clusters, self.n_trials, self.max_iter, self.tol)
 
+
+    def fit_predict(self, X, y=None):
+        """
+        """
+        self.fit(X)
+        return(self.labels_)
 
     def cut(self, n_desired):
         """
