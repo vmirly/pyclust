@@ -142,6 +142,11 @@ class BisectKMeans(object):
 
         Parameters
         -------
+           n_clusters: number of clusters (default = 2)
+           n_trials: number of trial random centroid initialization (default = 10)
+           max_iter: maximum number of iterations (default = 100)
+           tol: tolerance (default = 0.0001)
+
 
         Attibutes
         -------
@@ -150,16 +155,17 @@ class BisectKMeans(object):
 
         Methods
         ------- 
-           fit()
-           predict()
-           fit_predict()
+           fit(X): fit the model
+           fit_predict(X): fit the model and return the cluster labels
     """
+
     def __init__(self, n_clusters=2, n_trials=10, max_iter=100, tol=0.0001):
         assert n_clusters >= 2, 'n_clusters should be >= 2'
         self.n_clusters = n_clusters
         self.n_trials = n_trials
         self.max_iter = max_iter
         self.tol = tol
+
 
     def fit(self, X, y=None):
         """
@@ -173,6 +179,7 @@ class BisectKMeans(object):
         """
         self.fit(X)
         return(self.labels_)
+
 
     def cut(self, n_desired):
         """
