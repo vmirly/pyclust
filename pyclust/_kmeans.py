@@ -98,24 +98,26 @@ class KMeans(object):
     """
 	KMeans Clustering
 
-	Parameters
-	-------
-	   n_cluster
+        Parameters
+        -------
+           n_clusters: number of clusters (default = 2)
+           n_trials: number of trial random centroid initialization (default = 10)
+           max_iter: maximum number of iterations (default = 100)
+           tol: tolerance (default = 0.0001)
 
-	   n_trials : int, default 10
 
-	   max_iter : int, default 100
+        Attibutes
+        -------
+           labels_   :  cluster labels for each data item
+           centers_  :  cluster centers
+           sse_arr_  :  array of SSE values for each cluster
+           n_iter_   :  number of iterations for the best trial
+           
 
-	Attibutes
-	-------
-
-	   
-
-	Methods
-	------- 
-	   fit()
-	   predict()
-	   fit_predict()
+        Methods
+        ------- 
+           fit(X): fit the model
+           fit_predict(X): fit the model and return the cluster labels
     """
 
     def __init__(self, n_clusters=2, n_trials=10, max_iter=100, tol=0.001):
