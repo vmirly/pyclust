@@ -67,19 +67,19 @@ def _cut_tree(tree, n_clusters, membs):
     return(conv_membs)
 
 
-def _add_tree_node(tree, label, ilev,  X=None, csize=None, center=None, sse=None, parent=None):
+def _add_tree_node(tree, label, ilev,  X=None, size=None, center=None, sse=None, parent=None):
     """ Add a node to the tree
          if parent is not known, the node is a root
 
         The nodes of this tree keep properties of each cluster/subcluster:
-           csize  --> cluster size as the number of points in the cluster
+           size   --> cluster size as the number of points in the cluster
            center --> mean of the cluster
            label  --> cluster label
            sse    --> sum-squared-error for that single cluster
            ilev   --> the level at which this node is split into 2 children
     """
-    if csize is None:
-        csize = X.shape[0]
+    if size is None:
+        size = X.shape[0]
     if (center is None):
         center = np.mean(X, axis=0)
     if (sse is None):
@@ -87,7 +87,7 @@ def _add_tree_node(tree, label, ilev,  X=None, csize=None, center=None, sse=None
 
     center = list(center)
     datadict = {
-        'csize' : csize,
+        'size'  : size,
         'center': center, 
         'label' : label, 
         'sse'   : sse,
@@ -126,10 +126,10 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         #sse_arr[[sel_clust_id,i]] = km.sse_arr_
         #centers[[sel_clust_id,i]] = km.centers_
         tree = _add_tree_node(tree, 2*i-1, i, \
-                              csize=np.sum(km.labels_ == 0), center=km.centers_[0], \
+                              size=np.sum(km.labels_ == 0), center=km.centers_[0], \
                               sse=km.sse_arr_[0], parent= sel_clust_id)
         tree = _add_tree_node(tree, 2*i,   i, \
-                             csize=np.sum(km.labels_ == 1), center=km.centers_[1], \
+                             size=np.sum(km.labels_ == 1), center=km.centers_[1], \
                              sse=km.sse_arr_[1], parent= sel_clust_id)
 
         pred_labels = km.labels_
@@ -163,7 +163,10 @@ class BisectKMeans(object):
 
         Attibutes
         -------
-
+           labels_   :  cluster labels for each data item
+           centers_  :  cluster centers
+           sse_arr_  :  array of SSE values for each cluster
+           n_iter_   :  number of iterations for the best trial
            
 
         Methods
