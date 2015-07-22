@@ -3,6 +3,7 @@ import warnings
 
 import numpy as np
 import scipy, scipy.linalg
+from . import _kmeans
 
 
 def __log_density_single(x, mean, covar):
@@ -24,6 +25,7 @@ def __log_density_single(x, mean, covar):
 
    return(-1/2 * den)
 
+
 def _log_multivariate_density(X, mean_list, covar_list):
    """ 
    """
@@ -44,3 +46,13 @@ def _log_multivariate_density(X, mean_list, covar_list):
       log_proba[:, i] = - .5 * (np.sum(cov_solve ** 2, axis=1) + \
                        n_dim * np.log(2 * np.pi) + cov_log_det)
    return(log_proba)
+
+def _fit_gmm(X, n_components):
+   """
+   """
+   # Initialize the means using KMeans
+   means = _kmeans.KMeans(n_clusters=n_components).fit(X).centers_
+   # Initialize the covariance matrix
+   cov_all = np.cov(X.T)
+
+
