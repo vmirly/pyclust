@@ -58,8 +58,9 @@ def _fit_gmm(X, n_components):
 
 def _log_likelihood_per_sample(X, mean_list, covar_list):
    """
-      P(w_i | x) = P(x|w_i) * P(w_i) / P(X)
-       where P(X) = sum_i P(x|w_i) * P(w_i)
+      Probability of sample x being generated from component i:
+         P(w_i | x) = P(x|w_i) * P(w_i) / P(X)
+           where P(X) = sum_i P(x|w_i) * P(w_i)
 
        Here post_proba = P/(w_i | x)
         and log_likelihood = log(P(x|w_i))
@@ -72,7 +73,17 @@ def _log_likelihood_per_sample(X, mean_list, covar_list):
 
 
 def _maximization_step(X, posteriors):
+   """ 
+      Update class parameters as below:
+        priors: P(w_i) = sum_x P(w_i | x) ==> Then normalize to get in [0,1]
+        Class means: center_w_i = sum_x P(w_i|x)*x / sum_i sum_x P(w_i|x)
    """
-   """
-   weights = np.sum(posteriors, axis=0)
+   
+   sum_post_proba = np.sum(posteriors, axis=0)
+   prior_proba = sum_post_proba / sum_post_proba.sum()
+   
+   means = np.dot(posteriors.T, X) / sum_post_proba[:, np.newaxis]
+
+
+   return(prior_proba, means)
    

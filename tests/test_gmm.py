@@ -37,3 +37,8 @@ weighted_X_sum = np.dot(_.T, X)
 print(weighted_X_sum)
 
 print(np.any(np.abs(log1 - log2) < 0.001))
+
+priors, means = gmm._maximization_step(X, _)
+
+print(priors, priors.sum())
+print(means)
