@@ -25,3 +25,15 @@ print(res[:10,:])
 print(gmm.__log_density_single(X[0,:], m1, s1), \
       gmm.__log_density_single(X[0,:], m1, s2), \
       gmm.__log_density_single(X[0,:], m2, s2))
+
+
+log1, _ = gmm._log_likelihood_per_sample(X, list((m1, m1, m2)), list((s1, s2, s2)))
+from sklearn.utils.extmath import logsumexp
+log2 = logsumexp(res, axis=1)
+
+w = _.sum(axis=0)
+print(w)
+weighted_X_sum = np.dot(_.T, X)
+print(weighted_X_sum)
+
+print(np.any(np.abs(log1 - log2) < 0.001))

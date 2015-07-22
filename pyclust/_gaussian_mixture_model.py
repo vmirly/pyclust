@@ -3,7 +3,6 @@ import warnings
 
 import numpy as np
 import scipy, scipy.linalg
-from . import _kmeans
 
 
 def __log_density_single(x, mean, covar):
@@ -56,3 +55,24 @@ def _fit_gmm(X, n_components):
    cov_all = np.cov(X.T)
 
 
+
+def _log_likelihood_per_sample(X, mean_list, covar_list):
+   """
+      P(w_i | x) = P(x|w_i) * P(w_i) / P(X)
+       where P(X) = sum_i P(x|w_i) * P(w_i)
+
+       Here post_proba = P/(w_i | x)
+        and log_likelihood = log(P(x|w_i))
+   """
+   logden = _log_multivariate_density(X, mean_list, covar_list) 
+
+   log_likelihood = np.log(np.sum(np.exp(logden), axis=1))
+   post_proba = np.exp(logden - log_likelihood[:, np.newaxis])
+   return (log_likelihood, post_proba)
+
+
+def _maximization_step(X, posteriors):
+   """
+   """
+   weights = np.sum(posteriors, axis=0)
+   
