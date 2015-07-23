@@ -4,6 +4,7 @@ README.md
 requirements.txt
 setup.py
 examples/bisecting_kmeans.ipynb
+examples/compare_GMM_vs_KM.ipynb
 examples/compare_KM_vs_BKM.ipynb
 pyclust/__init__.py
 pyclust/_bisect_kmeans.py

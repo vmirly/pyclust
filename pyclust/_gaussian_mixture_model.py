@@ -183,6 +183,7 @@ class GMM(object):
                         n_init=self.n_trials, n_iter=self.max_iter, \
                         tol=self.tol)
 
+      self.labels_ = self.predict(X)
       self.converged = True
 
 
