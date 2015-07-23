@@ -2,7 +2,7 @@ from distutils.core import setup
 
 
 setup(name = "pyclust",
-    version = "0.0.8",
+    version = "0.0.9",
     description = "Data Clustering Algorithms in Python",
     author = "Vahid Mirjalili",
     author_email = "vmirjalily@gmail.com",
@@ -10,9 +10,9 @@ setup(name = "pyclust",
 
     packages = ['pyclust'],
 
-    install_requires=['numpy>=1.9.2',
-	'scipy>=0.15.1',
-	'treelib>=1.3.1'],
+    #install_requires=['numpy>=1.9.2',
+    #	'scipy>=0.15.1',
+    #	'treelib>=1.3.1'],
 
     #package *needs* these files.
     package_data = {'pyclust':[]},
