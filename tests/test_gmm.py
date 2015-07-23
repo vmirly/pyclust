@@ -17,7 +17,7 @@ X = np.vstack((np.random.multivariate_normal(m1, s1, size=100), \
 
 print(X.shape)
 
-res = gmm._log_multivariate_density(X, list((m1, m1, m2)), list((s1, s2, s2)))
+res = gmm._log_multivariate_density(X, np.array((m1, m1, m2)), np.array((s1, s2, s2)))
 
 print(res[:10,:])
 
@@ -27,7 +27,7 @@ print(gmm.__log_density_single(X[0,:], m1, s1), \
       gmm.__log_density_single(X[0,:], m2, s2))
 
 
-log1, _ = gmm._log_likelihood_per_sample(X, list((m1, m1, m2)), list((s1, s2, s2)))
+log1, _ = gmm._log_likelihood_per_sample(X, np.array((m1, m1, m2)), np.array((s1, s2, s2)))
 from sklearn.utils.extmath import logsumexp
 log2 = logsumexp(res, axis=1)
 
@@ -38,7 +38,9 @@ print(weighted_X_sum)
 
 print(np.any(np.abs(log1 - log2) < 0.001))
 
-priors, means = gmm._maximization_step(X, _)
+priors, means, covars = gmm._maximization_step(X, _)
 
 print(priors, priors.sum())
 print(means)
+
+print(covars)
