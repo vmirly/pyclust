@@ -5,4 +5,5 @@ requirements.txt
 setup.py
 pyclust/__init__.py
 pyclust/_bisect_kmeans.py
+pyclust/_gaussian_mixture_model.py
 pyclust/_kmeans.py

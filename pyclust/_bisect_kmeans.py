@@ -151,7 +151,7 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
 
 class BisectKMeans(object):
     """ 
-        KMeans Clustering
+        bisecting KMeans Clustering
 
         Parameters
         -------
@@ -167,7 +167,7 @@ class BisectKMeans(object):
            centers_  :  cluster centers
            sse_arr_  :  array of SSE values for each cluster
            n_iter_   :  number of iterations for the best trial
-           
+           tree_     :  tree hierarchy of bisecting clusters 
 
         Methods
         ------- 

@@ -2,45 +2,28 @@ import numpy as np
 import scipy, scipy.linalg
 import sys
 
-sys.path.append("pyclust/")
-import _gaussian_mixture_model as gmm
+import pyclust
 
 
-m1 = np.array([0,0])
-m2 = np.array([3,3])
+s1 = np.array([[0.3, 0.2], [0.7, 0.5]])
+s2 = np.array([[0.6, 0.0], [0.0, 1.1]])
 
-s1 = np.matrix([[1,0],[0,0.5]])
-s2 = np.matrix([[1,0.0],[0.0,0.5]])
+m1 = np.array([0.0, 0.0])
+m2 = np.array([2.0, -3.0])
 
-X = np.vstack((np.random.multivariate_normal(m1, s1, size=100), \
-               np.random.multivariate_normal(m2, s2, size=100)) )
+X1 = np.random.multivariate_normal(mean=m1, cov=s1, size=200)
+X2 = np.random.multivariate_normal(mean=m2, cov=s2, size=300)
 
-print(X.shape)
+X = np.vstack((X1, X2))
 
-res = gmm._log_multivariate_density(X, np.array((m1, m1, m2)), np.array((s1, s2, s2)))
+#np.savetxt("/tmp/test", X)
 
-print(res[:10,:])
+def test_gmm():
+   gmm = pyclust.GMM(n_clusters=2)
 
+   gmm.fit(X)
+   print(gmm.priors_)
+   print(gmm.means_)
+   print(gmm.covars_)
 
-print(gmm.__log_density_single(X[0,:], m1, s1), \
-      gmm.__log_density_single(X[0,:], m1, s2), \
-      gmm.__log_density_single(X[0,:], m2, s2))
-
-
-log1, _ = gmm._log_likelihood_per_sample(X, np.array((m1, m1, m2)), np.array((s1, s2, s2)))
-from sklearn.utils.extmath import logsumexp
-log2 = logsumexp(res, axis=1)
-
-w = _.sum(axis=0)
-print(w)
-weighted_X_sum = np.dot(_.T, X)
-print(weighted_X_sum)
-
-print(np.any(np.abs(log1 - log2) < 0.001))
-
-priors, means, covars = gmm._maximization_step(X, _)
-
-print(priors, priors.sum())
-print(means)
-
-print(covars)
+test_gmm()
