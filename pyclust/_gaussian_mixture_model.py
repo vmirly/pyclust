@@ -64,7 +64,11 @@ def _log_multivariate_density(X, means, covars):
 
    log_proba = np.empty(shape=(n_samples, n_components), dtype=float)
    for i, (mu, cov) in enumerate(zip(means, covars)):
-      cov_chol = scipy.linalg.cholesky(cov, lower=True)
+      try:
+          cov_chol = scipy.linalg.cholesky(cov, lower=True)
+      except: # scipy.linalg.LinAlgError:
+          raise ValueError("Triangular Matrix")
+
       cov_log_det = 2 * np.sum(np.log(np.diagonal(cov_chol)))
 
       cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
