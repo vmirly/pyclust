@@ -26,4 +26,7 @@ def test_gmm():
    print(gmm.means_)
    print(gmm.covars_)
 
+
+   print(gmm.predict(X))
+
 test_gmm()

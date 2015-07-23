@@ -189,9 +189,9 @@ class GMM(object):
    def predict_proba(self, X):
       """
       """
-      if !self.converged:
+      if not self.converged:
           raise Exception('Mixture model is not fit yet!! Try GMM.fit(X)')
-      _, post_proba = _log_likelihood_per_sample(X=X, means=self.means, covars=self.covars)
+      _, post_proba = _log_likelihood_per_sample(X=X, means=self.means_, covars=self.covars_)
 
       return(post_proba)
 
