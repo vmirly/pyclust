@@ -7,6 +7,7 @@ import scipy, scipy.linalg
 from . import _kmeans
 
 Epsilon = 100 * np.finfo(float).eps
+Lambda = 0.1
 
 def _init_mixture_params(X, n_mixtures):
    """ 
@@ -127,6 +128,8 @@ def _maximization_step(X, posteriors):
       mean_i = means[i]
       diff_i = X - mean_i
       covars[i] = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
+
+      covars[i] += Lambda * np.eye(n_features)
 
    return(prior_proba, means, covars)
 

@@ -7,4 +7,4 @@ from ._kmeans import KMeans
 from ._bisect_kmeans import BisectKMeans
 from ._gaussian_mixture_model import GMM
 
-__version__ = '0.0.8'
+__version__ = '0.0.12'
