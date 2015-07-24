@@ -6,7 +6,7 @@ import scipy, scipy.linalg
 
 from . import _kmeans
 
-
+Epsilon = 100 * np.finfo(float).eps
 
 def _init_mixture_params(X, n_mixtures):
    """ 
@@ -126,7 +126,7 @@ def _maximization_step(X, posteriors):
       post_i = posteriors[:, i]
       mean_i = means[i]
       diff_i = X - mean_i
-      covars[i] = np.dot(post_i * diff_i.T, diff_i) / post_i.sum()
+      covars[i] = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
 
    return(prior_proba, means, covars)
 
@@ -187,8 +187,8 @@ class GMM(object):
                         n_init=self.n_trials, n_iter=self.max_iter, \
                         tol=self.tol)
 
-      self.labels_ = self.predict(X)
       self.converged = True
+      self.labels_ = self.predict(X)
 
 
    def predict_proba(self, X):
