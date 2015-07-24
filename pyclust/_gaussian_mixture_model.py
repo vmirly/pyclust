@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 import scipy, scipy.linalg
-
+import sklearn, sklearn.utils
 from . import _kmeans
 
 Epsilon = 100 * np.finfo(float).eps
@@ -19,7 +19,9 @@ def _init_mixture_params(X, n_mixtures):
 
    init_priors = np.ones(shape=n_mixtures, dtype=float) / n_mixtures
 
-   init_means = _kmeans._kmeans_init(X, n_mixtures)
+   km = _kmeans.KMeans(n_clusters = n_mixtures)
+   km.fit(X)
+   init_means = km.centers_ #_kmeans_init(X, n_mixtures)
    
    n_features = X.shape[1]
    init_covars = np.empty(shape=(n_mixtures, n_features, n_features), dtype=float)
@@ -68,15 +70,18 @@ def _log_multivariate_density(X, means, covars):
       try:
           cov_chol = scipy.linalg.cholesky(cov, lower=True)
       except: # scipy.linalg.LinAlgError:
+          print(cov)
           raise ValueError("Triangular Matrix")
 
       cov_log_det = 2 * np.sum(np.log(np.diagonal(cov_chol)))
 
       cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
 
-      log_proba[:, i] = - .5 * (np.sum(cov_solve ** 2, axis=1) + \
+      log_proba[:, i] = -0.5 * (np.sum(cov_solve ** 2, axis=1) + \
                        n_dim * np.log(2 * np.pi) + cov_log_det)
+
    return(log_proba)
+
 
 
 
@@ -96,11 +101,17 @@ def _log_likelihood_per_sample(X, means, covars):
        Here post_proba = P/(w_i | x)
         and log_likelihood = log(P(x|w_i))
    """
+   
    logden = _log_multivariate_density(X, means, covars) 
 
-   log_likelihood = np.log(np.sum(np.exp(logden), axis=1))
+   logden_max = logden.max(axis=1)
+   log_likelihood = np.log(np.sum(np.exp(logden.T - logden_max) + Epsilon, axis=0))
+   log_likelihood += logden_max
+
    post_proba = np.exp(logden - log_likelihood[:, np.newaxis])
+
    return (log_likelihood, post_proba)
+
 
 
 
@@ -110,13 +121,13 @@ def _maximization_step(X, posteriors):
         priors: P(w_i) = sum_x P(w_i | x) ==> Then normalize to get in [0,1]
         Class means: center_w_i = sum_x P(w_i|x)*x / sum_i sum_x P(w_i|x)
    """
-   
+
    ### Prior probabilities or class weights
    sum_post_proba = np.sum(posteriors, axis=0)
-   prior_proba = sum_post_proba / sum_post_proba.sum()
+   prior_proba = sum_post_proba / (sum_post_proba.sum() + Epsilon)
    
    ### means
-   means = np.dot(posteriors.T, X) / sum_post_proba[:, np.newaxis]
+   means = np.dot(posteriors.T, X) / (sum_post_proba[:, np.newaxis] + Epsilon)
 
    ### covariance matrices
    n_components = posteriors.shape[1]
@@ -127,9 +138,12 @@ def _maximization_step(X, posteriors):
       post_i = posteriors[:, i]
       mean_i = means[i]
       diff_i = X - mean_i
-      covars[i] = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
 
-      covars[i] += Lambda * np.eye(n_features)
+      covar_i = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
+      covars[i] = covar_i + Lambda * np.eye(n_features)
+
+      if (not np.allclose(covars[i], covars[i].T) or np.any(scipy.linalg.eigvalsh(covars[i]) <= 0)):
+         raise ValueError("Component %d of covars must be positive-definite" % i)
 
    return(prior_proba, means, covars)
 
@@ -139,9 +153,12 @@ def _fit_gmm_params(X, n_mixtures, n_init, n_iter, tol):
    """
    """
 
+   best_mean_loglikelihood = -np.infty
+
    for init in range(n_init):
       priors, means, covars = _init_mixture_params(X, n_mixtures)
 
+      prev_mean_loglikelihood = None
       for i in range(n_iter):
           ## E-step
           log_likelihoods, posteriors = _log_likelihood_per_sample(X, means, covars)
@@ -149,7 +166,26 @@ def _fit_gmm_params(X, n_mixtures, n_init, n_iter, tol):
           ## M-step
           priors, means, covars = _maximization_step(X, posteriors)
 
-   return(priors, means, covars)
+          ## convergence Check
+          curr_mean_loglikelihood = log_likelihoods.mean()
+
+          if prev_mean_loglikelihood is not None:
+              if np.abs(curr_mean_loglikelihood - prev_mean_loglikelihood) < tol:
+                  break
+
+          prev_mean_loglikelihood = curr_mean_loglikelihood
+
+      if curr_mean_loglikelihood > best_mean_loglikelihood:
+          best_mean_loglikelihood = curr_mean_loglikelihood
+          best_params = {
+                  'priors' : priors,
+                  'means'  : means,
+                  'covars' : covars,
+                  'mean_log_likelihood' : curr_mean_loglikelihood,
+                  'n_iter' : i
+                }
+
+   return(best_params)
 
 
 
@@ -185,10 +221,12 @@ class GMM(object):
    def fit(self, X, y=None):
       """ Fit mixture-density parameters with EM algorithm
       """
-      self.priors_, self.means_, self.covars_ = \
-        _fit_gmm_params(X=X, n_mixtures=self.n_clusters, \
+      params_dict = _fit_gmm_params(X=X, n_mixtures=self.n_clusters, \
                         n_init=self.n_trials, n_iter=self.max_iter, \
                         tol=self.tol)
+      self.priors_ = params_dict['priors']
+      self.means_  = params_dict['means']
+      self.covars_ = params_dict['covars']
 
       self.converged = True
       self.labels_ = self.predict(X)
