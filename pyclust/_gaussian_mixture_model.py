@@ -139,7 +139,8 @@ def _maximization_step(X, posteriors):
       mean_i = means[i]
       diff_i = X - mean_i
 
-      covar_i = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
+      with np.errstate(under='ignore'):
+          covar_i = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
       covars[i] = covar_i + Lambda * np.eye(n_features)
 
       if (not np.allclose(covars[i], covars[i].T) or np.any(scipy.linalg.eigvalsh(covars[i]) <= 0)):
@@ -217,6 +218,7 @@ class GMM(object):
       self.tol = tol
    
       self.converged = False
+
 
    def fit(self, X, y=None):
       """ Fit mixture-density parameters with EM algorithm
