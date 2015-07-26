@@ -1,5 +1,6 @@
 
 import warnings
+import sys
 
 import numpy as np
 import scipy, scipy.linalg
@@ -75,7 +76,10 @@ def _log_multivariate_density(X, means, covars):
 
       cov_log_det = 2 * np.sum(np.log(np.diagonal(cov_chol)))
 
-      cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
+      if np.any(np.isinf(cov)) or np.any(np.isnan(cov)):
+         sys.stderr.write("INF or NaN in covaraince matrix!\n")
+      else:
+         cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
 
       log_proba[:, i] = -0.5 * (np.sum(cov_solve ** 2, axis=1) + \
                        n_dim * np.log(2 * np.pi) + cov_log_det)
@@ -114,6 +118,24 @@ def _log_likelihood_per_sample(X, means, covars):
 
 
 
+def _validate_params(priors, means, covars):
+   """ Validation Check for M.L. paramateres
+   """
+
+   for i,(p,m,cv) in enumerate(zip(priors, means, covars)):
+      if np.any(np.isinf(p)) or np.any(np.isnan(p)):
+          raise ValueError("Component %d of priors is not valid " % i)
+
+      if np.any(np.isinf(m)) or np.any(np.isnan(m)):
+          raise ValueError("Component %d of means is not valid " % i)
+
+      if np.any(np.isinf(cv)) or np.any(np.isnan(cv)):
+          raise ValueError("Component %d of covars is not valid " % i)
+
+      if (not np.allclose(cv, cv.T) or np.any(scipy.linalg.eigvalsh(cv) <= 0)):
+          raise ValueError("Component %d of covars must be positive-definite" % i)
+
+
 
 def _maximization_step(X, posteriors):
    """ 
@@ -121,6 +143,9 @@ def _maximization_step(X, posteriors):
         priors: P(w_i) = sum_x P(w_i | x) ==> Then normalize to get in [0,1]
         Class means: center_w_i = sum_x P(w_i|x)*x / sum_i sum_x P(w_i|x)
    """
+
+   if np.any(np.isnan(posteriors)):
+       print(posteriors)
 
    ### Prior probabilities or class weights
    sum_post_proba = np.sum(posteriors, axis=0)
@@ -143,9 +168,8 @@ def _maximization_step(X, posteriors):
           covar_i = np.dot(post_i * diff_i.T, diff_i) / (post_i.sum() + Epsilon)
       covars[i] = covar_i + Lambda * np.eye(n_features)
 
-      if (not np.allclose(covars[i], covars[i].T) or np.any(scipy.linalg.eigvalsh(covars[i]) <= 0)):
-         raise ValueError("Component %d of covars must be positive-definite" % i)
 
+   _validate_params(prior_proba, means, covars)
    return(prior_proba, means, covars)
 
 
