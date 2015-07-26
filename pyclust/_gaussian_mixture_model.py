@@ -10,7 +10,7 @@ from . import _kmeans
 Epsilon = 100 * np.finfo(float).eps
 Lambda = 0.1
 
-def _init_mixture_params(X, n_mixtures):
+def _init_mixture_params(X, n_mixtures, init_method):
    """ 
       Initialize mixture density parameters with 
         equal priors
@@ -20,10 +20,18 @@ def _init_mixture_params(X, n_mixtures):
 
    init_priors = np.ones(shape=n_mixtures, dtype=float) / n_mixtures
 
-   km = _kmeans.KMeans(n_clusters = n_mixtures)
-   km.fit(X)
-   init_means = km.centers_ #_kmeans_init(X, n_mixtures)
-   
+   if init_method == 'kmeans':
+      km = _kmeans.KMeans(n_clusters = n_mixtures, n_trials=20)
+      km.fit(X)
+      init_means = km.centers_ 
+   else:
+      inx_rand = np.random.choice(X.shape[0], size=n_mixtures)
+      init_means = X[inx_rand,:]
+ 
+  
+   if np.any(np.isnan(init_means)):
+      raise ValueError("Init means are NaN! ") 
+
    n_features = X.shape[1]
    init_covars = np.empty(shape=(n_mixtures, n_features, n_features), dtype=float)
    for i in range(n_mixtures):
@@ -46,8 +54,6 @@ def __log_density_single(x, mean, covar):
    covar_inv = scipy.linalg.inv(covar)
    covar_det = scipy.linalg.det(covar)
 
-   #print(covar_inv)
-   #print(covar_det)
    den = np.dot(np.dot(dx.T, covar_inv), dx) + n_dim*np.log(2*np.pi) + np.log(covar_det)
 
    return(-1/2 * den)
@@ -71,15 +77,17 @@ def _log_multivariate_density(X, means, covars):
       try:
           cov_chol = scipy.linalg.cholesky(cov, lower=True)
       except: # scipy.linalg.LinAlgError:
-          print(cov)
-          raise ValueError("Triangular Matrix")
+          try:
+              cov_chol = scipy.linalg.cholesky(cov + Lambda*np.eye(n_dim), lower=True)
+          except:
+              raise ValueError("Triangular Matrix Decomposition not performed!\n")
 
       cov_log_det = 2 * np.sum(np.log(np.diagonal(cov_chol)))
 
-      if np.any(np.isinf(cov)) or np.any(np.isnan(cov)):
-         sys.stderr.write("INF or NaN in covaraince matrix!\n")
-      else:
-         cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
+      try:
+          cov_solve = scipy.linalg.solve_triangular(cov_chol, (X - mu).T, lower=True).T
+      except:
+          raise ValueError("Solve_triangular not perormed!\n")
 
       log_proba[:, i] = -0.5 * (np.sum(cov_solve ** 2, axis=1) + \
                        n_dim * np.log(2 * np.pi) + cov_log_det)
@@ -144,9 +152,6 @@ def _maximization_step(X, posteriors):
         Class means: center_w_i = sum_x P(w_i|x)*x / sum_i sum_x P(w_i|x)
    """
 
-   if np.any(np.isnan(posteriors)):
-       print(posteriors)
-
    ### Prior probabilities or class weights
    sum_post_proba = np.sum(posteriors, axis=0)
    prior_proba = sum_post_proba / (sum_post_proba.sum() + Epsilon)
@@ -174,15 +179,14 @@ def _maximization_step(X, posteriors):
 
 
 
-def _fit_gmm_params(X, n_mixtures, n_init, n_iter, tol):
+def _fit_gmm_params(X, n_mixtures, n_init, init_method, n_iter, tol):
    """
    """
 
    best_mean_loglikelihood = -np.infty
 
    for init in range(n_init):
-      priors, means, covars = _init_mixture_params(X, n_mixtures)
-
+      priors, means, covars = _init_mixture_params(X, n_mixtures, init_method)
       prev_mean_loglikelihood = None
       for i in range(n_iter):
           ## E-step
@@ -234,10 +238,11 @@ class GMM(object):
            fit_predict(X): fit the model and return the cluster labels
    """
 
-   def __init__(self, n_clusters=2, n_trials=10, max_iter=100, tol=0.0001):
+   def __init__(self, n_clusters=2, n_trials=10, init_method='', max_iter=100, tol=0.0001):
       assert n_clusters >= 2, 'n_clusters should be >= 2'
       self.n_clusters = n_clusters
       self.n_trials = n_trials
+      self.init_method = init_method
       self.max_iter = max_iter
       self.tol = tol
    
@@ -248,8 +253,8 @@ class GMM(object):
       """ Fit mixture-density parameters with EM algorithm
       """
       params_dict = _fit_gmm_params(X=X, n_mixtures=self.n_clusters, \
-                        n_init=self.n_trials, n_iter=self.max_iter, \
-                        tol=self.tol)
+                        n_init=self.n_trials, init_method=self.init_method, \
+                        n_iter=self.max_iter, tol=self.tol)
       self.priors_ = params_dict['priors']
       self.means_  = params_dict['means']
       self.covars_ = params_dict['covars']
