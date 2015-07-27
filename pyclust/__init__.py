@@ -6,5 +6,6 @@
 from ._kmeans import KMeans
 from ._bisect_kmeans import BisectKMeans
 from ._gaussian_mixture_model import GMM
+from ._kmedoids import KMedoids
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
