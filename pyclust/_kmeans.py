@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import scipy.spatial
 
@@ -20,7 +18,7 @@ def _kmeans_init(X, n_clusters, method='balanced'):
 
 def _assign_clusters(X, centers):
     """ Assignment Step:
-	   assign each point to the closet cluster center
+           assign each point to the closet cluster center
     """
     dist2cents = scipy.spatial.distance.cdist(X, centers, metric='euclidean')
     membs = np.argmin(dist2cents, axis=1)
@@ -35,7 +33,7 @@ def _cal_dist2center(X, center):
 
 def _update_centers(X, membs, n_clusters):
     """ Update Cluster Centers:
-	   calculate the mean of feature vectors for each cluster
+           calculate the mean of feature vectors for each cluster
     """
     centers = np.empty(shape=(n_clusters, X.shape[1]), dtype=float)
     sse = np.empty(shape=n_clusters, dtype=float)
@@ -46,7 +44,7 @@ def _update_centers(X, membs, n_clusters):
             memb_ids = np.random.choice(X.shape[0], size=1)
             #print("Empty cluster replaced with ", memb_ids)
         centers[clust_id,:] = np.mean(X[memb_ids,:], axis=0)
-	
+        
         sse[clust_id] = _cal_dist2center(X[memb_ids,:], centers[clust_id,:]) 
     return(centers, sse)
 
@@ -54,7 +52,7 @@ def _update_centers(X, membs, n_clusters):
 
 def _kmeans_run(X, n_clusters, max_iter, tol):
     """ Run a single trial of k-means clustering
-	on dataset X, and given number of clusters
+        on dataset X, and given number of clusters
     """
     membs = np.empty(shape=X.shape[0], dtype=int)
     centers = _kmeans_init(X, n_clusters)
@@ -75,7 +73,7 @@ def _kmeans_run(X, n_clusters, max_iter, tol):
 
 def _kmeans(X, n_clusters, max_iter, n_trials, tol):
     """ Run multiple trials of k-means clustering,
-	and outputt he best centers, and cluster labels
+        and outputt he best centers, and cluster labels
     """
     n_samples, n_features = X.shape[0], X.shape[1]
 
@@ -101,7 +99,7 @@ def _kmeans(X, n_clusters, max_iter, n_trials, tol):
 
 class KMeans(object):
     """
-	KMeans Clustering
+        KMeans Clustering
 
         Parameters
         -------
@@ -126,7 +124,7 @@ class KMeans(object):
     """
 
     def __init__(self, n_clusters=2, n_trials=10, max_iter=100, tol=0.001):
-	
+        
         self.n_clusters = n_clusters
         self.n_trials = n_trials
         self.max_iter = max_iter
@@ -134,7 +132,7 @@ class KMeans(object):
 
     def fit(self, X, y=None):
         """ Apply KMeans Clustering
-	      X: dataset with feature vectors
+              X: dataset with feature vectors
         """
         self.centers_, self.labels_, self.sse_arr_, self.n_iter_ = \
               _kmeans(X, self.n_clusters, self.max_iter, self.n_trials, self.tol)

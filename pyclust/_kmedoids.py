@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import scipy.spatial
 
@@ -9,7 +7,7 @@ from . import _kmeans as kmeans
 
 def _update_centers(X, membs, n_clusters, distance):
     """ Update Cluster Centers:
-	   calculate the mean of feature vectors for each cluster.
+           calculate the mean of feature vectors for each cluster.
 
         distance can be a string or callable.
     """
@@ -32,7 +30,7 @@ def _update_centers(X, membs, n_clusters, distance):
 
 def _kmedoids_run(X, n_clusters, distance, max_iter, tol):
     """ Run a single trial of k-medoids clustering
-	on dataset X, and given number of clusters
+        on dataset X, and given number of clusters
     """
     membs = np.empty(shape=X.shape[0], dtype=int)
     centers = kmeans._kmeans_init(X, n_clusters, method='')
@@ -53,7 +51,7 @@ def _kmedoids_run(X, n_clusters, distance, max_iter, tol):
 
 def _kmedoids(X, n_clusters, distance, max_iter, n_trials, tol):
     """ Run multiple trials of k-medoids clustering,
-	and output he best centers, and cluster labels
+        and output he best centers, and cluster labels
     """
     n_samples, n_features = X.shape[0], X.shape[1]
 
@@ -80,7 +78,7 @@ def _kmedoids(X, n_clusters, distance, max_iter, n_trials, tol):
 
 class KMedoids(object):
     """
-	KMedoids Clustering
+        KMedoids Clustering
 
         K-medoids clustering take the cluster centroid as the medoid of the data points,
          as opposed to the average of data points in a cluster. As a result, K-medoids 
@@ -118,7 +116,7 @@ class KMedoids(object):
     """
 
     def __init__(self, n_clusters=2, distance='euclidean', n_trials=10, max_iter=100, tol=0.001):
-	
+        
         self.n_clusters = n_clusters
         self.n_trials = n_trials
         self.max_iter = max_iter
@@ -127,7 +125,7 @@ class KMedoids(object):
 
     def fit(self, X, y=None):
         """ Apply KMeans Clustering
-	      X: dataset with feature vectors
+              X: dataset with feature vectors
         """
         self.centers_, self.labels_, self.sse_arr_, self.n_iter_ = \
               _kmedoids(X, self.n_clusters, self.distance, self.max_iter, self.n_trials, self.tol)
