@@ -1,10 +1,5 @@
-
-import warnings
-import sys
-
 import numpy as np
 import scipy, scipy.linalg
-import sklearn, sklearn.utils
 from . import _kmeans
 
 Epsilon = 100 * np.finfo(float).eps
@@ -76,7 +71,7 @@ def _log_multivariate_density(X, means, covars):
     for i, (mu, cov) in enumerate(zip(means, covars)):
         try:
             cov_chol = scipy.linalg.cholesky(cov, lower=True)
-        except: # scipy.linalg.LinAlgError:
+        except scipy.linalg.LinAlgError:
             try:
                 cov_chol = scipy.linalg.cholesky(cov + Lambda*np.eye(n_dim), lower=True)
             except:
@@ -185,7 +180,7 @@ def _fit_gmm_params(X, n_mixtures, n_init, init_method, n_iter, tol):
 
     best_mean_loglikelihood = -np.infty
 
-    for init in range(n_init):
+    for _ in range(n_init):
         priors, means, covars = _init_mixture_params(X, n_mixtures, init_method)
         prev_mean_loglikelihood = None
         for i in range(n_iter):

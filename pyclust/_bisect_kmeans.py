@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import treelib
 
@@ -46,7 +44,7 @@ def _cut_tree(tree, n_clusters, membs):
         if i+2 == n_clusters:
             cut_set = search_set
         else:
-            for j in range(len(search_set)):
+            for _ in range(len(search_set)):
                 n = search_set.pop()
             
                 if n.data['ilev'] is None or n.data['ilev']>i+2:
