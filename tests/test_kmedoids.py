@@ -16,17 +16,17 @@ membs = pyclust._kmeans._assign_clusters(d, cent)
 
 print(membs)
 
-cent_upd = pyclust._kmeans._update_centers(d, membs, n_clusters=2)
+cent_upd = pyclust._kmedoids._update_centers(d, membs, n_clusters=2, distance='euclidean')
 
 print(cent_upd)
 
-print(pyclust._kmeans._kmeans_run(d, n_clusters=2, max_iter=20, tol=0.0001))
+print(pyclust._kmedoids._kmedoids_run(d, n_clusters=2, distance='euclidean', max_iter=20, tol=0.001))
 
-km = pyclust.KMeans(n_clusters=2)
+kmd = pyclust.KMedoids(n_clusters=2)
 
-km.fit(d)
+kmd.fit(d)
 
-print("Centers: ", km.centers_)
-print("Labels: ", km.labels_)
-print("SSE: ", km.sse_arr_)
-print("N_ITER: ", km.n_iter_)
+print("Centers: ", kmd.centers_)
+print("Labels: ", kmd.labels_)
+print("SSE: ", kmd.sse_arr_)
+print("N_ITER: ", kmd.n_iter_)
