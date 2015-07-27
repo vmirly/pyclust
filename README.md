@@ -4,4 +4,4 @@
 
 Documentation: http://mirjalil.github.io/pyclust
 
-![pyclust: data clustering in python](http://github.com/mirjalil/pyclust/docs/images/pyclust-logo-tentative.png)
+![pyclust: data clustering in python](https://github.com/mirjalil/pyclust/blob/master/docs/images/pyclust-logo-tentative.png)
