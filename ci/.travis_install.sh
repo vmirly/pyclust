@@ -44,6 +44,9 @@ if [[ "$COVERAGE" == "true" ]]; then
     pip install coverage coveralls
 fi
 
+
+pip install treelib
+
 # Build gplearn in the install.sh script to collapse the verbose
 # build output in the travis output when it succeeds.
 python --version
