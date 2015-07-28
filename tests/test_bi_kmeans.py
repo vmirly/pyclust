@@ -9,10 +9,10 @@ d3 = np.random.uniform(low=-4, high=-2, size=(10,2))
 da = np.vstack((d1,d2,d3))
 
 
-def test_bisect3(d):
+def test_bisect3():
     bkm = pyclust.BisectKMeans(n_clusters=4)
 
-    bkm.fit(d)
+    bkm.fit(da)
 
     print(bkm.labels_)
 
@@ -77,4 +77,4 @@ def test_bisect10():
 
 test_bisect10()
 
-test_bisect3(da)
+test_bisect3()
