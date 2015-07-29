@@ -20,7 +20,7 @@ def _assign_clusters(X, centers):
     """ Assignment Step:
            assign each point to the closet cluster center
     """
-    dist2cents = scipy.spatial.distance.cdist(X, centers, metric='euclidean')
+    dist2cents = scipy.spatial.distance.cdist(X, centers, metric='seuclidean')
     membs = np.argmin(dist2cents, axis=1)
 
     return(membs)
@@ -28,7 +28,7 @@ def _assign_clusters(X, centers):
 def _cal_dist2center(X, center):
     """ Calculate the SSE to the cluster center
     """
-    dmemb2cen = scipy.spatial.distance.cdist(X, center.reshape(1,X.shape[1]), metric='euclidean')
+    dmemb2cen = scipy.spatial.distance.cdist(X, center.reshape(1,X.shape[1]), metric='seuclidean')
     return(np.sum(dmemb2cen))
 
 def _update_centers(X, membs, n_clusters):

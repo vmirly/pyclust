@@ -5,25 +5,27 @@ from . import _kmeans as kmeans
 
 
 
-def _kernelized_distance(x_i, wcent):
+def _compute_gram_matrix(X, kern_type='rbf', sigma_sq=2.0):
     """
     """
+    if kern_type == 'rbf':
+        pairwise_dist = scipy.spatial.distance.pdist(X, metric='seuclidean')
+        gram_matrix = np.exp( - pairwise_dist / sigma_sq)
+    else:
+        print("OOO")
+        print(kern_type)
 
+    return(gram_matrix)
 
-def _assign_clusters(X, centers):
-    """ Assignment Step:
-           assign each point to the closet cluster center
-
-        center_j = sum_h w_hj phi(x_h)
+def _kernelized_distance_rbf(x_i, x_j, sigma_sq_2=2.0):
     """
-    dist2cents = scipy.spatial.distance.cdist(X, centers, metric='euclidean')
-    membs = np.argmin(dist2cents, axis=1)
+    """
+    dx = x_i - x_j
+    dx_sq = np.sum(dx * dx)
+    return(np.exp(-dx_sq / sigma_sq_2))
 
-    return(membs)
 
-
-
-class KernelKmeans(object):
+class KernelKMeans(object):
     """
     """
 
