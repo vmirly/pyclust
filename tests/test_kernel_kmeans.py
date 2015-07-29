@@ -10,4 +10,4 @@ print(d.shape)
 kg = pyclust._kernel_kmeans._compute_gram_matrix(d, sigma_sq=2.0)
 
 print(kg)
-
+print(kg.shape)
