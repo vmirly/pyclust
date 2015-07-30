@@ -244,7 +244,7 @@ class GMM(object):
         self.converged = False
 
 
-    def fit(self, X, y=None):
+    def fit(self, X):
         """ Fit mixture-density parameters with EM algorithm
         """
         params_dict = _fit_gmm_params(X=X, n_mixtures=self.n_clusters, \

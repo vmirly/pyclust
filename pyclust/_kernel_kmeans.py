@@ -5,7 +5,7 @@ from . import _kmeans as kmeans
 
 
 
-def _compute_gram_matrix(X, kern_type='rbf', sigma_sq=2.0):
+def _compute_gram_matrix(X, kern_type, sigma_sq=2.0):
     """
     """
     if kern_type == 'rbf':
@@ -19,7 +19,7 @@ def _compute_gram_matrix(X, kern_type='rbf', sigma_sq=2.0):
 
 
 
-def _kernelized_dist2centers(K, wmemb, i, clust_id):
+def _kernelized_dist2centers(K, wmemb, i):
     """ Computin the distance in transformed feature space to 
          cluster centers.
  
@@ -56,7 +56,8 @@ class KernelKMeans(object):
     """
     """
 
-    def __init__(self, n_clusters=2, kernel='rbf', n_trials=10, max_iter=100):
+    def __init__(self, n_clusters=2, kernel='linear', n_trials=10, max_iter=100):
+        assert (kernel in ['linear', 'rbf'])
         self.n_clusters = n_clusters
         self.kernel     = kernel
         self.n_trials   = n_trials

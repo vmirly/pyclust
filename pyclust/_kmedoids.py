@@ -123,7 +123,7 @@ class KMedoids(object):
         self.tol = tol
         self.distance = distance
 
-    def fit(self, X, y=None):
+    def fit(self, X):
         """ Apply KMeans Clustering
               X: dataset with feature vectors
         """
@@ -131,7 +131,7 @@ class KMedoids(object):
               _kmedoids(X, self.n_clusters, self.distance, self.max_iter, self.n_trials, self.tol)
 
 
-    def fit_predict(self, X, y=None):
+    def fit_predict(self, X):
         """ Apply KMeans Clustering, 
             and return cluster labels
         """

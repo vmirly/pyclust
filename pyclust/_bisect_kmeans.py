@@ -181,14 +181,14 @@ class BisectKMeans(object):
         self.tol = tol
 
 
-    def fit(self, X, y=None):
+    def fit(self, X):
         """
         """
         self.centers_, self.labels_, self.sse_arr_, self.tree_ = \
             _bisect_kmeans(X, self.n_clusters, self.n_trials, self.max_iter, self.tol)
 
 
-    def fit_predict(self, X, y=None):
+    def fit_predict(self, X):
         """
         """
         self.fit(X)

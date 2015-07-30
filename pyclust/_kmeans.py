@@ -130,7 +130,7 @@ class KMeans(object):
         self.max_iter = max_iter
         self.tol = tol
 
-    def fit(self, X, y=None):
+    def fit(self, X):
         """ Apply KMeans Clustering
               X: dataset with feature vectors
         """
@@ -138,7 +138,7 @@ class KMeans(object):
               _kmeans(X, self.n_clusters, self.max_iter, self.n_trials, self.tol)
 
 
-    def fit_predict(self, X, y=None):
+    def fit_predict(self, X):
         """ Apply KMeans Clustering, 
             and return cluster labels
         """
