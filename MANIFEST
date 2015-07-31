@@ -13,6 +13,7 @@ pyclust/_gaussian_mixture_model.py
 pyclust/_kernel_kmeans.py
 pyclust/_kmeans.py
 pyclust/_kmedoids.py
+pyclust/metrics.py
 tests/test_bi_kmeans.py
 tests/test_gmm.py
 tests/test_kernel_kmeans.py

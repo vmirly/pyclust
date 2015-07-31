@@ -9,7 +9,7 @@ def _compute_gram_matrix(X, kern_type, sigma_sq=2.0):
     """
     """
     if kern_type == 'rbf':
-        pairwise_dist = scipy.spatial.distance.pdist(X, metric='seuclidean')
+        pairwise_dist = scipy.spatial.distance.pdist(X, metric='sqeuclidean')
         pairwise_dist = scipy.spatial.distance.squareform(pairwise_dist)
         gram_matrix = np.exp( - pairwise_dist / sigma_sq)
     else:
