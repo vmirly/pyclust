@@ -6,6 +6,7 @@ setup.py
 examples/bisecting_kmeans.ipynb
 examples/compare_GMM_vs_KM.ipynb
 examples/compare_KM_vs_BKM.ipynb
+examples/compare_kernelKmenas_vs_kmeans.ipynb
 examples/kmedoids.ipynb
 pyclust/__init__.py
 pyclust/_bisect_kmeans.py

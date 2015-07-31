@@ -19,7 +19,7 @@ def test_kernelkmeans():
 
     kdist = np.zeros(shape=(20,2), dtype=float)
 
-    res = pyclust._kernel_kmeans._fit_kernelkmeans(kg, 2, 100)
+    #res = pyclust._kernel_kmeans._fit_kernelkmeans(kg, 2, 100)
 
     kkm = pyclust.KernelKMeans(n_clusters=2, kernel='rbf')
     kkm.fit_predict(d)

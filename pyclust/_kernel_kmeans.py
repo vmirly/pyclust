@@ -1,7 +1,8 @@
+## Authors: Vahid Mirjalili & Emad Zahedi
+##
+
 import numpy as np
 import scipy, scipy.spatial
-
-from . import _kmeans as kmeans
 
 
 
@@ -43,32 +44,48 @@ def _kernelized_dist2centers(K, n_clusters, wmemb, kernel_dist):
         memb_j = np.where(wmemb == j)[0]
         size_j = memb_j.shape[0]
 
-        KK = K[memb_j][:, memb_j] 
-        kernel_dist[:,j] = np.sum(KK)/(size_j*size_j)
-        kernel_dist[:,j] -= 2 * np.sum(K[:, memb_j], axis=1) / size_j
-
+        K_sub_j = K[memb_j][:, memb_j]
+        for i in range(n_samples): 
+           kernel_dist[i,j] = 1 + np.sum(K_sub_j) /(size_j*size_j)
+           kernel_dist[i,j] -= 2 * np.sum(K[i, memb_j], axis=0) / size_j
 
     return
 
 
-def _fit_kernelkmeans(K, n_clusters, max_iter, converge_tol=0.01):
+def _fit_kernelkmeans(K, n_clusters, max_iter, converge_tol=0.001):
     """
     """
     n_samples = K.shape[0]
-    membs_prev = np.random.randint(n_clusters, size=n_samples)
     kdist = np.empty(shape=(n_samples, n_clusters), dtype=float)
-    for it in range(max_iter):
-        kdist.fill(0)
-        _kernelized_dist2centers(K, n_clusters, membs_prev, kdist)
+    within_distances = np.empty(shape=n_clusters, dtype=float)
 
-        membs_curr = np.argmin(kdist, axis=1)
-        membs_changed_ratio = float(np.sum((membs_curr - membs_prev) != 0)) / n_samples
-        if membs_changed_ratio < converge_tol:
-            break
+    best_within_distances = np.infty
+    n_trials = 200
+    for i in range(n_trials):
+        print(i, best_within_distances)
+        membs_prev = np.random.randint(n_clusters, size=n_samples)
 
-        membs_prev = membs_curr
+        for it in range(max_iter):
+            kdist.fill(0)
+            _kernelized_dist2centers(K, n_clusters, membs_prev, kdist)
 
-    return(it, membs_curr)
+            membs_curr = np.argmin(kdist, axis=1)
+            membs_changed_ratio = float(np.sum((membs_curr - membs_prev) != 0)) / n_samples
+
+            if membs_changed_ratio < converge_tol:
+                break
+
+            membs_prev = membs_curr
+
+        for j in range(n_clusters):
+            within_distances[j] = np.sum(kdist[np.where(membs_curr == j)[0], j])
+        print(i, it, within_distances, within_distances.sum(), best_within_distances)
+        if best_within_distances > within_distances.sum():
+            best_within_distances = within_distances.sum()
+            best_labels = membs_curr
+            print(best_labels)
+
+    return(it, best_labels)
 
 
 
