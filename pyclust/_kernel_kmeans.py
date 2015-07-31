@@ -19,7 +19,7 @@ def _compute_gram_matrix(X, kern_type, sigma_sq=2.0):
 
 
 
-def _kernelized_dist2centers(K, wmemb, i):
+def _kernelized_dist2centers(K, n_clusters, wmemb, kernel_dist):
     """ Computin the distance in transformed feature space to 
          cluster centers.
  
@@ -31,44 +31,56 @@ def _kernelized_dist2centers(K, wmemb, i):
                                       sum_r sum_s w_jr w_js K_rs
     """
     n_samples = K.shape[0]
-    n_clusters = wmemb.shape[1]
     
-    kdist = np.ones(shape=n_clusters, dtype=float)
     for j in range(n_clusters):
-        kdist[j] = kdist[j] - 2 * np.sum(wmemb[:,j] * K[i,:])
-        for r in range(n_samples):
-            if wmemb[r,j] == 1:
-                kdist[j] += np.sum(wmemb[:,j] * K[r,:])
+        memb_j = np.where(wmemb == j)[0]
+        size_j = memb_j.shape[0]
 
-    return(kdist)
+        KK = K[memb_j][:, memb_j] 
+        kernel_dist[:,j] = np.sum(KK)/(size_j*size_j)
+        kernel_dist[:,j] -= 2 * np.sum(K[:, memb_j], axis=1) / size_j
 
 
 
-def _kernelized_distance_rbf(x_i, x_j, sigma_sq=2.0):
+def _fit_kernelkmeans(K, n_clusters, max_iter):
     """
     """
-    dx = x_i - x_j
-    dx_sq = np.sum(dx * dx)
-    return(np.exp(-dx_sq / sigma_sq))
+    n_samples = K.shape[0]
+    labels_old = np.random.randint(n_clusters, size=n_samples)
+    kdist = np.empty(shape=(n_samples, n_clusters), dtype=float)
+    for it in range(max_iter):
+        kdist.fill(0)
+        _kernelized_dist2centers(K, n_clusters, labels_old, kdist)
+        labels = np.argmin(kdist, axis=1)
+
+
+    return(labels)
+
 
 
 class KernelKMeans(object):
     """
     """
 
-    def __init__(self, n_clusters=2, kernel='linear', n_trials=10, max_iter=100):
+    def __init__(self, n_clusters=2, kernel_type='linear', n_trials=10, max_iter=100):
         assert (kernel in ['linear', 'rbf'])
-        self.n_clusters = n_clusters
-        self.kernel     = kernel
-        self.n_trials   = n_trials
-        self.max_iter   = max_iter
+        self.n_clusters  = n_clusters
+        self.kernel_type = kernel_type
+        self.n_trials    = n_trials
+        self.max_iter    = max_iter
 
     def fit(self, X):
         """
         """
-        pass
+        self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type)
+        self.labels_ = _fit_kernelkmeans(self.kernel_matrix_, self.n_clusters, self.max_iter)
+        self.converged = True
 
     def fit_predict(self, X):
         """
         """
-        pass
+        if not self.converged:
+            raise("Model is not fit yet!")
+
+        self.fit(X)
+        return(self.labels_)
