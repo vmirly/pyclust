@@ -1,3 +1,5 @@
+### Theoretical & Algorithmic Discussion 
+###  with Emad Zahedi
 import numpy as np
 import scipy, scipy.spatial
 
