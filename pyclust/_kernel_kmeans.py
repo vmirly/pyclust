@@ -108,3 +108,29 @@ class KernelKMeans(object):
         """
         self.fit(X)
         return(self.labels_)
+
+
+class GlobalKernelKMeans(object):
+    """
+    """
+    def __init__(self, n_clusters=3, kernel='linear', params={}, n_trials=10, max_iter=100):
+        self.n_clusters  = n_clusters
+        self.kernel_type = kernel
+        self.n_trials    = n_trials
+        self.max_iter    = max_iter
+
+        self.kernel_params = params
+
+    def fit(self, X):
+        """
+        """
+        self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type, self.kernel_params)
+
+    def refit(self, n_clusters):
+        """ Extend clustering to a larger number of clusters
+        """
+        if n_clusters <= self.n_clusters:
+            pass
+        else:
+            pass
+            
