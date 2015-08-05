@@ -9,4 +9,4 @@ from ._gaussian_mixture_model import GMM
 from ._kmedoids import KMedoids
 from ._kernel_kmeans import KernelKMeans
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'

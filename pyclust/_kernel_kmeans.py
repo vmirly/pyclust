@@ -96,12 +96,27 @@ class KernelKMeans(object):
         self.max_iter    = max_iter
 
         self.kernel_params = params
+        self.kernel_matrix_ = None
 
-    def fit(self, X):
+
+    def _set_kernel_matrix(self, X=None, kernel_matrix=None):
         """
         """
-        self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type, self.kernel_params)
+        if self.kernel_matrix_ is None:
+            if kernel_matrix is None:
+                if X is None:
+                    raise("Either X or kernel_matrix is needed!")
+                self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type, self.kernel_params)
+            else:
+                self.kernel_matrix_ = kernel_matrix
+
+
+    def fit(self, X, kernel_matrix=None):
+        """
+        """
+        self._set_kernel_matrix(X, kernel_matrix)
         self.n_iter_, self.labels_ = _fit_kernelkmeans(self.kernel_matrix_, self.n_clusters, self.n_trials, self.max_iter)
+
 
     def fit_predict(self, X):
         """
@@ -120,11 +135,14 @@ class GlobalKernelKMeans(object):
         self.max_iter    = max_iter
 
         self.kernel_params = params
+        self.kernel_matrix_ = None
 
     def fit(self, X):
         """
         """
-        self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type, self.kernel_params)
+        if self.kernel_matrix_ is None:
+            self.kernel_matrix_ = _compute_gram_matrix(X, self.kernel_type, self.kernel_params)
+        
 
     def refit(self, n_clusters):
         """ Extend clustering to a larger number of clusters
