@@ -125,6 +125,40 @@ class KernelKMeans(object):
         return(self.labels_)
 
 
+############### Global Kernel K-Means ####################
+
+
+def _fit_global_kernelkmeans(K, n_clusters, max_iter, converge_tol=0.001):
+    """
+    """
+    n_samples = K.shape[0]
+    kdist = np.empty(shape=(n_samples, n_clusters), dtype=float)
+    within_distances = np.empty(shape=n_clusters, dtype=float)
+
+    best_within_distances = np.infty
+    for i in range(n_samples):
+        membs_prev = np.random.randint(n_clusters, size=n_samples)
+
+        for it in range(max_iter):
+            kdist.fill(0)
+            _kernelized_dist2centers(K, n_clusters, membs_prev, kdist)
+
+            membs_curr = np.argmin(kdist, axis=1)
+            membs_changed_ratio = float(np.sum((membs_curr - membs_prev) != 0)) / n_samples
+
+            if membs_changed_ratio < converge_tol:
+                break
+
+            membs_prev = membs_curr
+
+        for j in range(n_clusters):
+            within_distances[j] = np.sum(kdist[np.where(membs_curr == j)[0], j])
+        if best_within_distances > within_distances.sum():
+            best_within_distances = within_distances.sum()
+            best_labels = membs_curr
+
+    return(it, best_labels)
+
 class GlobalKernelKMeans(object):
     """
     """
