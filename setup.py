@@ -8,7 +8,7 @@ setup(name = "pyclust",
     author_email = "vmirjalily@gmail.com",
     url = "https://github.com/mirjalil/pyclust",
 
-    packages = ['pyclust'],
+    packages = ['pyclust', 'pyclust.validate'],
 
     #install_requires=['numpy>=1.9.2',
     #	'scipy>=0.15.1',

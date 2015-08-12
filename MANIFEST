@@ -16,8 +16,10 @@ pyclust/_kmeans.py
 pyclust/_kmedoids.py
 pyclust/metrics.py
 pyclust/validate/__init__.py
+pyclust/validate/_internal.py
 tests/test_bi_kmeans.py
 tests/test_gmm.py
 tests/test_kernel_kmeans.py
 tests/test_kmeans.py
 tests/test_kmedoids.py
+tests/test_silhouette.py
