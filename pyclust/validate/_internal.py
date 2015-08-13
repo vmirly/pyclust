@@ -22,8 +22,10 @@ def _cal_silhouette_score(X, y, sample_size, metric):
     ## for each of the selected samples
     a_arr = _intra_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
+    b_arr =  _nearest_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
-    return(a_arr)
+    comb_arr = np.vstack((a_arr, b_arr))
+    return(np.abs(a_arr-b_arr)/np.max(comb_arr, axis=0))
 
 
 def _intra_cluster_distances(dist_matrix, y, ilist):
@@ -37,17 +39,39 @@ def _intra_cluster_distances(dist_matrix, y, ilist):
     else:
         raise Exception("ilist must be iterable!")
 
-
     mean_intra_distances = np.empty(shape=n_inx, dtype=float)
-
     for i,inx in enumerate(ilist):
         mask = y == y[inx]
         if np.sum(mask)>0:
-            mean_intra_distances[i] = np.mean(dist_matrix[mask].T[inx])
+            mean_intra_distances[i] = np.mean(dist_matrix[inx][mask])
         else:
             mean_intra_distances[i] = 0.0
 
     return(mean_intra_distances) 
+
+
+
+def _nearest_cluster_distances(dist_matrix, y, ilist):
+    """
+    """
+    n_samples = y.shape[0]
+    if type(ilist) == type(list()):
+        n_inx = len(ilist)
+    elif type(ilist) == type(np.array([])):
+        n_inx = ilist.shape[0]
+    else:
+        raise Exception("ilist must be iterable!")
+
+    min_clust_distances = np.empty(shape=n_inx, dtype=float)
+    for i,inx in enumerate(ilist):
+        mask = y != y[inx]
+        if np.sum(mask)>0:
+            min_clust_distances[i] = np.min(dist_matrix[inx][mask])
+        else:
+            min_clust_distances[i] = 0.0
+
+    return(min_clust_distances)
+
 
 class Silhouette(object):
     """
@@ -56,6 +80,7 @@ class Silhouette(object):
         self.n_labels_ = None
 
     def score(self, X, labels, sample_size=None, metric='euclidean'):
-        self.score = _cal_silhouette_score(X, labels, sample_size, metric)
+        self.sample_scores = _cal_silhouette_score(X, labels, sample_size, metric)
+        self.score = np.mean(self.sample_scores)
 
         return(self.score)

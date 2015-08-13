@@ -34,6 +34,8 @@ def test_gmm():
 
    print(X.shape)
    sil = pyclust.validate.Silhouette()
-   print(sil.score(X, ypred, sample_size=24))
+   sil_score = sil.score(X, ypred, sample_size=24)
+
+   print(sil_score)
 
 test_gmm()
