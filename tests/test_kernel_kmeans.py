@@ -7,7 +7,6 @@ d2 = np.random.uniform(low=3, high=5, size=(20,2))
 d = np.vstack((d1,d2))
 from scipy.sparse import issparse
 
-
 def test_kernelkmeans():
     kg = pyclust._kernel_kmeans._compute_gram_matrix(d, kernel_type='rbf', params={})
 

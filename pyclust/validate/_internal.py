@@ -1,6 +1,8 @@
 import scipy, scipy.spatial
 import numpy as np
 
+import sys
+
 def _cal_silhouette_score(X, y, sample_size, metric):
     """
     """
@@ -22,10 +24,11 @@ def _cal_silhouette_score(X, y, sample_size, metric):
     ## for each of the selected samples
     a_arr = _intra_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
+    ## Compute Minimum Cluster Distances
     b_arr =  _nearest_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
     comb_arr = np.vstack((a_arr, b_arr))
-    return(np.abs(a_arr-b_arr)/np.max(comb_arr, axis=0))
+    return((b_arr-a_arr)/np.max(comb_arr, axis=0), a_arr, b_arr)
 
 
 def _intra_cluster_distances(dist_matrix, y, ilist):
@@ -42,11 +45,12 @@ def _intra_cluster_distances(dist_matrix, y, ilist):
     mean_intra_distances = np.empty(shape=n_inx, dtype=float)
     for i,inx in enumerate(ilist):
         mask = y == y[inx]
+        mask[inx] = False
         if np.sum(mask)>0:
-            mean_intra_distances[i] = np.mean(dist_matrix[inx][mask])
+            mean_intra_distances[i] = np.mean(dist_matrix[inx][mask]) #/(np.sum(mask) - 1.0)
         else:
             mean_intra_distances[i] = 0.0
-
+        #sys.stderr.write("mask size: %d  AvgIntraDist %f\n"%(np.sum(mask), mean_intra_distances[i]))
     return(mean_intra_distances) 
 
 
@@ -68,8 +72,9 @@ def _nearest_cluster_distances(dist_matrix, y, ilist):
         if np.sum(mask)>0:
             min_clust_distances[i] = np.min(dist_matrix[inx][mask])
         else:
-            min_clust_distances[i] = 0.0
+            print("error")
 
+        #sys.stderr.write("mask size: %d  Nearest Cluster %f\n"%(np.sum(mask),min_clust_distances[i]))
     return(min_clust_distances)
 
 
@@ -80,7 +85,7 @@ class Silhouette(object):
         self.n_labels_ = None
 
     def score(self, X, labels, sample_size=None, metric='euclidean'):
-        self.sample_scores = _cal_silhouette_score(X, labels, sample_size, metric)
+        self.sample_scores, self.a_, self.b_ = _cal_silhouette_score(X, labels, sample_size, metric)
         self.score = np.mean(self.sample_scores)
 
-        return(self.score)
+        return(self.score, self.a_, self.b_)
