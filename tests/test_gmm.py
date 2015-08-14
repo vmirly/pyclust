@@ -19,14 +19,14 @@ X = np.vstack((X1, X2))
 #np.savetxt("/tmp/test", X)
 
 def test_gmm():
-   gmm = pyclust.GMM(n_clusters=2)
+    gmm = pyclust.GMM(n_clusters=2)
 
-   gmm.fit(X)
-   print(gmm.priors_)
-   print(gmm.means_)
-   print(gmm.covars_)
+    gmm.fit(X)
+    print(gmm.priors_)
+    print(gmm.means_)
+    print(gmm.covars_)
 
 
-   print(gmm.predict(X))
+    print(gmm.predict(X))
 
 test_gmm()
