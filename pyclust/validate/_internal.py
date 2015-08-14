@@ -24,8 +24,8 @@ def _cal_silhouette_score(X, y, sample_size, metric):
     ## for each of the selected samples
     a_arr = _intra_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
-    ## Compute Minimum Cluster Distances
-    b_arr =  _nearest_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
+    ## Compute Avg. Distabces to the Neighboring Clusters
+    b_arr =  _neighboring_cluster_distances(pair_dist_matrix, y_samp, np.arange(y_samp.shape[0]))
 
     comb_arr = np.vstack((a_arr, b_arr))
     return((b_arr-a_arr)/np.max(comb_arr, axis=0), a_arr, b_arr)
@@ -55,7 +55,7 @@ def _intra_cluster_distances(dist_matrix, y, ilist):
 
 
 
-def _nearest_cluster_distances(dist_matrix, y, ilist):
+def _neighboring_cluster_distances(dist_matrix, y, ilist):
     """
     """
     n_samples = y.shape[0]
@@ -68,11 +68,10 @@ def _nearest_cluster_distances(dist_matrix, y, ilist):
 
     min_clust_distances = np.empty(shape=n_inx, dtype=float)
     for i,inx in enumerate(ilist):
-        mask = y != y[inx]
-        if np.sum(mask)>0:
-            min_clust_distances[i] = np.min(dist_matrix[inx][mask])
-        else:
-            print("error")
+        y_inx = y[inx]
+        dist_row_inx = dist_matrix[inx]
+        dist_2_clusters = [np.mean(dist_row_inx[y == j]) for j in set(y) if not j == y_inx]
+        min_clust_distances[i] = np.min(dist_2_clusters)
 
         #sys.stderr.write("mask size: %d  Nearest Cluster %f\n"%(np.sum(mask),min_clust_distances[i]))
     return(min_clust_distances)

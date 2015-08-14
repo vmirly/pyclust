@@ -16,10 +16,11 @@ X2 = np.random.multivariate_normal(mean=m2, cov=s2, size=300)
 
 X = np.vstack((X1, X2))
 
-X = np.array([[-1,0],[0,0],[-1,-1],[2,0],[2,1],[3,0]])
-X = np.array([[-1,0],[0,0],[0,0],[2,0],[2,0],[3,0]])
-ypred = np.array([1,1,1,2,2,2])
-
+#X = np.array([[-1,0],[0,0],[-1,-1],[2,0],[2,1],[3,0]])
+#X = np.array([[-1,0],[0,0],[0,0],[2,0],[2,0],[3,0]])
+#ypred = np.array([1,1,1,2,2,2])
+ypred = np.hstack((np.zeros(shape=200), np.ones(shape=300)))
+print(ypred.shape)
 
 #np.savetxt("/tmp/test", X)
 
@@ -29,9 +30,9 @@ def test_gmm():
 
     print(sil_score[0])
 
-    print(sil.sample_scores)
+    print(sil.sample_scores[:10])
 
     print(silhouette_score(X, ypred, sample_size=None))
     
-    print(silhouette_samples(X, ypred))
+    print(silhouette_samples(X, ypred)[:10])
 test_gmm()
