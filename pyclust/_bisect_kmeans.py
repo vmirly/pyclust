@@ -33,6 +33,9 @@ def _cut_tree(tree, n_clusters, membs):
     ## its children are added to node_set
     assert(n_clusters >= 2)
     assert(n_clusters <= len(tree.leaves()))
+
+    cut_centers = dict() #np.empty(shape=(n_clusters, ndim), dtype=float)
+    
     for i in range(n_clusters-1):
         if i==0:
             search_set = set(tree.children(0))
@@ -57,12 +60,14 @@ def _cut_tree(tree, n_clusters, membs):
     conv_membs = membs.copy()
     for node in cut_set:
         nid = node.identifier
+        label = node.data['label']
+        cut_centers['label'] = node.data['center']
         sub_leaves = tree.leaves(nid)
         for leaf in sub_leaves:
             indx = np.where(conv_membs == leaf)[0]
             conv_membs[indx] = nid
 
-    return(conv_membs)
+    return(conv_membs, cut_centers)
 
 
 def _add_tree_node(tree, label, ilev,  X=None, size=None, center=None, sse=None, parent=None):
@@ -101,13 +106,14 @@ def _add_tree_node(tree, label, ilev,  X=None, size=None, center=None, sse=None,
 
 
 
+
 def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
     """ Apply Bisecting Kmeans clustering
         to reach n_clusters number of clusters
     """
     membs = np.empty(shape=X.shape[0], dtype=int)
-    centers = np.empty(shape=(n_clusters,X.shape[1]), dtype=float)
-    sse_arr = -1.0*np.ones(shape=n_clusters, dtype=float)
+    centers = dict() #np.empty(shape=(n_clusters,X.shape[1]), dtype=float)
+    sse_arr = dict() #-1.0*np.ones(shape=n_clusters, dtype=float)
 
     ## data structure to store cluster hierarchies
     tree = treelib.Tree()
@@ -141,6 +147,12 @@ def _bisect_kmeans(X, n_clusters, n_trials, max_iter, tol):
         #    pred_labels[np.where(pred_labels == 0)[0]] = sel_clust_id
 
         membs[sel_memb_ids] = pred_labels
+
+
+    for n in tree.leaves():
+        label = n.data['label']
+        centers[label] = n.data['center']
+        sse_arr[label] = n.data['sse']
 
     return(centers, membs, sse_arr, tree)
 
