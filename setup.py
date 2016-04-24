@@ -2,7 +2,7 @@ from distutils.core import setup
 
 
 setup(name = "pyclust",
-    version = "0.1.14",
+    version = "0.1.15",
     description = "Data Clustering Algorithms in Python",
     author = "Vahid Mirjalili",
     author_email = "vmirjalily@gmail.com",

@@ -61,7 +61,7 @@ def _cut_tree(tree, n_clusters, membs):
     for node in cut_set:
         nid = node.identifier
         label = node.data['label']
-        cut_centers['label'] = node.data['center']
+        cut_centers[label] = node.data['center']
         sub_leaves = tree.leaves(nid)
         for leaf in sub_leaves:
             indx = np.where(conv_membs == leaf)[0]
