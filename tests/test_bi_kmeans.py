@@ -24,9 +24,9 @@ def test_bisect3():
     bkm.tree_.show(line_type='ascii')
 
     print("Orig: ", np.unique(bkm.labels_))
-    print("Cut2: ", np.unique(bkm.cut(2)))
-    print("Cut3: ", np.unique(bkm.cut(3)))
-    print("Cut4: ", np.unique(bkm.cut(4)))
+    print("Cut2: ", np.unique(bkm.cut(2)[0]))
+    print("Cut3: ", np.unique(bkm.cut(3)[0]))
+    print("Cut4: ", np.unique(bkm.cut(4)[0]))
 
 
 def test_bisect10():
@@ -67,13 +67,13 @@ def test_bisect10():
     bkm.tree_.show(line_type='ascii')
 
     print("Orig: ", np.unique(bkm.labels_))
-    print("Cut2: ", np.unique(bkm.cut(2)))
-    print("Cut3: ", np.unique(bkm.cut(3)))
-    print("Cut4: ", np.unique(bkm.cut(4)))
+    print("Cut2: ", np.unique(bkm.cut(2)[0]))
+    print("Cut3: ", np.unique(bkm.cut(3)[0]))
+    print("Cut4: ", np.unique(bkm.cut(4)[0]))
 
-    print("Cut5: ", np.unique(bkm.cut(5)))
-    print("Cut6: ", np.unique(bkm.cut(6)))
-    print("Cut7: ", np.unique(bkm.cut(7)))
+    print("Cut5: ", np.unique(bkm.cut(5)[0]))
+    print("Cut6: ", np.unique(bkm.cut(6)[0]))
+    print("Cut7: ", np.unique(bkm.cut(7)[0]))
 
 test_bisect10()
 
