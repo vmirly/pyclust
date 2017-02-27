@@ -28,12 +28,12 @@ def _update_centers(X, membs, n_clusters, distance):
 
 
 
-def _kmedoids_run(X, n_clusters, distance, max_iter, tol):
+def _kmedoids_run(X, n_clusters, distance, max_iter, tol, rng):
     """ Run a single trial of k-medoids clustering
         on dataset X, and given number of clusters
     """
     membs = np.empty(shape=X.shape[0], dtype=int)
-    centers = kmeans._kmeans_init(X, n_clusters, method='')
+    centers = kmeans._kmeans_init(X, n_clusters, method='', rng=rng)
 
     sse_last = 9999.9
     n_iter = 0
@@ -49,7 +49,7 @@ def _kmedoids_run(X, n_clusters, distance, max_iter, tol):
     return(centers, membs, sse_total, sse_arr, n_iter)
 
 
-def _kmedoids(X, n_clusters, distance, max_iter, n_trials, tol):
+def _kmedoids(X, n_clusters, distance, max_iter, n_trials, tol, rng):
     """ Run multiple trials of k-medoids clustering,
         and output he best centers, and cluster labels
     """
@@ -59,7 +59,7 @@ def _kmedoids(X, n_clusters, distance, max_iter, n_trials, tol):
     labels_best  = np.empty(shape=n_samples, dtype=int)
     for i in range(n_trials):
         centers, labels, sse_tot, sse_arr, n_iter  = \
-               _kmedoids_run(X, n_clusters, distance, max_iter, tol)
+               _kmedoids_run(X, n_clusters, distance, max_iter, tol, rng)
         if i==0:
             sse_tot_best = sse_tot
             sse_arr_best = sse_arr
@@ -115,20 +115,23 @@ class KMedoids(object):
            fit_predict(X): fit the model and return the cluster labels
     """
 
-    def __init__(self, n_clusters=2, distance='euclidean', n_trials=10, max_iter=100, tol=0.001):
+    def __init__(self, n_clusters=2, distance='euclidean', 
+                 n_trials=10, max_iter=100, tol=0.001, random_state=None):
         
         self.n_clusters = n_clusters
         self.n_trials = n_trials
         self.max_iter = max_iter
         self.tol = tol
         self.distance = distance
+        self.random_state = random_state
+        self.rng = np.random.RandomState(random_state)
 
     def fit(self, X):
         """ Apply KMeans Clustering
               X: dataset with feature vectors
         """
         self.centers_, self.labels_, self.sse_arr_, self.n_iter_ = \
-              _kmedoids(X, self.n_clusters, self.distance, self.max_iter, self.n_trials, self.tol)
+              _kmedoids(X, self.n_clusters, self.distance, self.max_iter, self.n_trials, self.tol, self.rng)
 
 
     def fit_predict(self, X):

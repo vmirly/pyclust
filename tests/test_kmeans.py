@@ -30,3 +30,11 @@ print("Centers: ", km.centers_)
 print("Labels: ", km.labels_)
 print("SSE: ", km.sse_arr_)
 print("N_ITER: ", km.n_iter_)
+
+## Checking the random-number generator
+#rng = np.random.RandomState(1234)
+print('\n\n*** Testing RandomState: ***')
+for i in range(3):
+   rng = np.random.RandomState(1234)
+   print(pyclust._kmeans._kmeans_init(d, 2, rng=rng))
+   print()

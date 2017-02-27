@@ -20,7 +20,9 @@ cent_upd = pyclust._kmedoids._update_centers(d, membs, n_clusters=2, distance='e
 
 print(cent_upd)
 
-print(pyclust._kmedoids._kmedoids_run(d, n_clusters=2, distance='euclidean', max_iter=20, tol=0.001))
+
+rng = np.random.RandomState(1234)
+print(pyclust._kmedoids._kmedoids_run(d, n_clusters=2, distance='euclidean', max_iter=20, tol=0.001, rng=rng))
 
 kmd = pyclust.KMedoids(n_clusters=2)
 
@@ -30,3 +32,15 @@ print("Centers: ", kmd.centers_)
 print("Labels: ", kmd.labels_)
 print("SSE: ", kmd.sse_arr_)
 print("N_ITER: ", kmd.n_iter_)
+
+
+print('\n\n*** Testing RandomState: ***')
+for i in range(3):
+    kmd2 = pyclust.KMedoids(n_clusters=2, random_state=123)
+    kmd2.fit(d)
+    print("Centers: ", kmd2.centers_)
+    print("Labels: ", kmd2.labels_)
+    print("SSE: ", kmd2.sse_arr_)
+    print("N_ITER: ", kmd2.n_iter_)
+    print()
+
